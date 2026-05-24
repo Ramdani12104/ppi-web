@@ -18,6 +18,7 @@ class WakafProgressResource extends Resource
     protected static ?string $model = WakafProgress::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-chart-bar';
+    protected static bool $shouldRegisterNavigation = false;
     protected static ?string $navigationGroup = 'Dukungan Pendidikan';
     protected static ?string $modelLabel = 'Progress Pembangunan';
     protected static ?string $pluralModelLabel = 'Progress Pembangunan';

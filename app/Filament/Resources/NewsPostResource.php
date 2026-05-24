@@ -22,13 +22,14 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\ImageColumn;
 use Illuminate\Support\Str;
+use App\Helpers\MediaHelper;
 
 class NewsPostResource extends Resource
 {
     protected static ?string $model = NewsPost::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-newspaper';
-    protected static ?string $navigationGroup = 'Berita & Informasi';
+    protected static ?string $navigationGroup = 'Media';
     protected static ?string $modelLabel = 'Berita';
     protected static ?string $pluralModelLabel = 'Semua Berita';
 
@@ -71,10 +72,7 @@ class NewsPostResource extends Resource
                                     ->searchable()
                                     ->preload(),
                                     
-                                FileUpload::make('thumbnail')
-                                    ->label('Thumbnail Utama')
-                                    ->image()
-                                    ->directory('news')
+                                MediaHelper::imageUpload('thumbnail', 'Thumbnail Utama', 'news', 'content')
                                     ->required(),
                                     
                                 DateTimePicker::make('published_at')
@@ -99,7 +97,7 @@ class NewsPostResource extends Resource
                                 Repeater::make('galleries')
                                     ->relationship()
                                     ->schema([
-                                        FileUpload::make('image')->image()->directory('news')->required(),
+                                        MediaHelper::imageUpload('image', 'Foto', 'news', 'content')->required(),
                                         TextInput::make('caption')->label('Keterangan Gambar'),
                                     ])
                                     ->grid(3)

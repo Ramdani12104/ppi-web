@@ -8,11 +8,10 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables\Table;
 use Filament\Tables;
-use Filament\Forms\Components\Tabs;
+use App\Helpers\MediaHelper;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\RichEditor;
-use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Toggle;
 use Filament\Forms\Components\ColorPicker;
@@ -26,84 +25,91 @@ class TokohPendiriSettingResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-users';
     protected static ?string $navigationGroup = 'Profil Pesantren';
-    protected static ?string $modelLabel = 'Halaman Tokoh Pendiri';
-    protected static ?string $pluralModelLabel = 'Pengaturan Tokoh Pendiri';
+    protected static ?string $modelLabel = 'Tokoh Pendiri';
+    protected static ?string $pluralModelLabel = 'Tokoh Pendiri';
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                Tabs::make('Pendiri Settings')
-                    ->tabs([
-                        Tabs\Tab::make('Hero')
-                            ->schema([
-                                TextInput::make('hero_title')->label('Judul Hero')->required(),
-                                TextInput::make('hero_subtitle')->label('Subjudul Hero'),
-                                FileUpload::make('hero_banner')->label('Banner Hero')->image()->directory('pendiri'),
-                            ]),
+                Section::make('Hero')
+                    ->description('Atur gambar background dan judul di atas halaman Tokoh Pendiri')
+                    ->schema([
+                        TextInput::make('hero_title')->label('Judul Hero')->required(),
+                        TextInput::make('hero_subtitle')->label('Subjudul Hero'),
+                        MediaHelper::imageUpload('hero_banner', 'Banner Hero', 'jenjang', 'banner'),
+                    ]),
 
-                        Tabs\Tab::make('Sejarah')
-                            ->schema([
-                                TextInput::make('history_title')->label('Judul Sejarah Awal Mula')->columnSpanFull(),
-                                RichEditor::make('history_content')->label('Konten Sejarah')->columnSpanFull(),
-                                FileUpload::make('history_image')->label('Gambar Sejarah')->image()->directory('pendiri')->columnSpanFull(),
-                            ]),
+                Section::make('Sejarah')
+                    ->description('Teks sejarah pendirian awal mula pesantren')
+                    ->schema([
+                        TextInput::make('history_title')->label('Judul Sejarah Awal Mula')->columnSpanFull(),
+                        RichEditor::make('history_content')->label('Konten Sejarah')->columnSpanFull(),
+                        MediaHelper::imageUpload('history_image', 'Gambar Sejarah', 'gallery', 'content')->columnSpanFull(),
+                    ]),
 
-                        Tabs\Tab::make('Keluarga Pendiri')
+                Section::make('Keluarga Pendiri')
+                    ->description('Informasi keluarga atau tokoh penerus perjuangan pesantren')
+                    ->schema([
+                        Repeater::make('families')
+                            ->relationship()
                             ->schema([
-                                Repeater::make('families')
-                                    ->relationship()
-                                    ->schema([
-                                        TextInput::make('name')->label('Nama Keluarga (Contoh: Bani Mahfudz)')->required(),
-                                        Textarea::make('description')->label('Deskripsi Singkat'),
-                                        FileUpload::make('image')->label('Foto/Ilustrasi')->image()->directory('pendiri'),
-                                    ])->columns(3)->columnSpanFull(),
-                            ]),
+                                TextInput::make('name')->label('Nama Keluarga (Contoh: Bani Mahfudz)')->required(),
+                                Textarea::make('description')->label('Deskripsi Singkat'),
+                                MediaHelper::imageUpload('image', 'Foto/Ilustrasi', 'gallery', 'avatar'),
+                            ])->columns(3)->columnSpanFull(),
+                    ]),
 
-                        Tabs\Tab::make('Timeline Perjuangan')
+                Section::make('Timeline Perjuangan')
+                    ->description('Kronologis peristiwa-peristiwa penting pesantren')
+                    ->schema([
+                        Repeater::make('timelines')
+                            ->relationship()
                             ->schema([
-                                Repeater::make('timelines')
-                                    ->relationship()
-                                    ->schema([
-                                        TextInput::make('year')->label('Tahun (Contoh: 1980)')->required(),
-                                        TextInput::make('title')->label('Judul Momen')->required(),
-                                        Textarea::make('description')->label('Deskripsi Peristiwa'),
-                                    ])->columns(3)->columnSpanFull(),
-                            ]),
+                                TextInput::make('year')->label('Tahun (Contoh: 1980)')->required(),
+                                TextInput::make('title')->label('Judul Momen')->required(),
+                                Textarea::make('description')->label('Deskripsi Peristiwa'),
+                            ])->columns(3)->columnSpanFull(),
+                    ]),
 
-                        Tabs\Tab::make('Nilai & Warisan')
-                            ->schema([
-                                TextInput::make('values_title')->label('Judul Nilai Perjuangan')->columnSpanFull(),
-                                RichEditor::make('values_content')->label('Konten Nilai Perjuangan')->columnSpanFull(),
-                                TextInput::make('quote_text')->label('Teks Kutipan Islami')->columnSpanFull(),
-                                TextInput::make('quote_author')->label('Sumber Kutipan'),
-                            ]),
+                Section::make('Nilai & Warisan')
+                    ->description('Nilai-nilai kepesantrenan dan amanah kutipan pendiri')
+                    ->schema([
+                        TextInput::make('values_title')->label('Judul Nilai Perjuangan')->columnSpanFull(),
+                        RichEditor::make('values_content')->label('Konten Nilai Perjuangan')->columnSpanFull(),
+                        TextInput::make('quote_text')->label('Teks Kutipan Islami')->columnSpanFull(),
+                        TextInput::make('quote_author')->label('Sumber Kutipan'),
+                    ]),
 
-                        Tabs\Tab::make('Galeri')
+                Section::make('Galeri')
+                    ->description('Galeri foto dokumentasi sejarah dan tokoh pendiri')
+                    ->schema([
+                        Repeater::make('galleries')
+                            ->relationship()
                             ->schema([
-                                Repeater::make('galleries')
-                                    ->relationship()
-                                    ->schema([
-                                        FileUpload::make('image')->image()->directory('pendiri')->required(),
-                                        TextInput::make('caption')->label('Caption Gambar'),
-                                    ])->grid(3)->columnSpanFull(),
-                            ]),
+                                MediaHelper::imageUpload('image', 'Foto Dokumentasi', 'gallery', 'content'),
+                                TextInput::make('caption')->label('Caption Gambar'),
+                                TextInput::make('sort_order')->label('Urutan')->numeric()->default(0),
+                            ])
+                            ->orderColumn('sort_order')
+                            ->grid(3)->columnSpanFull(),
+                    ]),
 
-                        Tabs\Tab::make('Penutup')
+                Section::make('Penutup')
+                    ->description('Teks ajakan akhir, warna tema, dan status publikasi halaman')
+                    ->schema([
+                        TextInput::make('cta_title')->label('Judul Penutup'),
+                        Textarea::make('cta_desc')->label('Deskripsi Penutup'),
+                        
+                        Section::make('Warna Tema')
                             ->schema([
-                                TextInput::make('cta_title')->label('Judul Penutup'),
-                                Textarea::make('cta_desc')->label('Deskripsi Penutup'),
-                                
-                                Section::make('Warna Tema')
-                                    ->schema([
-                                        ColorPicker::make('color_primary')->label('Warna Latar (Cream)')->default('#fefaf4'),
-                                        ColorPicker::make('color_accent')->label('Warna Aksen (Hijau)')->default('#2a5f4c'),
-                                        ColorPicker::make('color_card')->label('Warna Card (Coklat)')->default('#d6c7b0'),
-                                    ])->columns(3),
-                                
-                                Toggle::make('is_publish')->label('Publish Halaman')->default(true),
-                            ]),
-                    ])->columnSpanFull()
+                                ColorPicker::make('color_primary')->label('Warna Latar (Cream)')->default('#fefaf4'),
+                                ColorPicker::make('color_accent')->label('Warna Aksen (Hijau)')->default('#2a5f4c'),
+                                ColorPicker::make('color_card')->label('Warna Card (Coklat)')->default('#d6c7b0'),
+                            ])->columns(3),
+                        
+                        Toggle::make('is_publish')->label('Publish Halaman')->default(true),
+                    ]),
             ]);
     }
 
@@ -123,9 +129,7 @@ class TokohPendiriSettingResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListTokohPendiriSettings::route('/'),
-            'create' => Pages\CreateTokohPendiriSetting::route('/create'),
-            'edit' => Pages\EditTokohPendiriSetting::route('/{record}/edit'),
+            'index' => Pages\ManageTokohPendiriSetting::route('/'),
         ];
     }
 }

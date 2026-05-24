@@ -18,6 +18,7 @@ class WakafTimelineResource extends Resource
     protected static ?string $model = WakafTimeline::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-clock';
+    protected static bool $shouldRegisterNavigation = false;
     protected static ?string $navigationGroup = 'Dukungan Pendidikan';
     protected static ?string $modelLabel = 'Timeline Perjalanan';
     protected static ?string $pluralModelLabel = 'Timeline Perjalanan';

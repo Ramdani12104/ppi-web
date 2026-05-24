@@ -17,6 +17,7 @@ class EducationProgramResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-academic-cap';
     
     protected static ?string $navigationLabel = 'Program Pendidikan';
+    protected static bool $shouldRegisterNavigation = false;
     protected static ?string $modelLabel = 'Program Pendidikan (Jenjang)';
     protected static ?string $pluralModelLabel = 'Program Pendidikan';
     protected static ?string $slug = 'program-pendidikan';

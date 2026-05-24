@@ -10,6 +10,7 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use App\Helpers\MediaHelper;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
@@ -18,9 +19,8 @@ class MTsSettingResource extends Resource
     protected static ?string $model = MTsSetting::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-academic-cap';
-    
+    protected static ?string $navigationGroup = 'Program Pendidikan';
     protected static ?string $navigationLabel = 'Pengaturan Halaman MTs';
-    
     protected static ?string $modelLabel = 'Pengaturan MTs';
 
     public static function form(Form $form): Form
@@ -30,16 +30,8 @@ class MTsSettingResource extends Resource
                 // Hero Section
                 Forms\Components\Section::make('Hero Section')
                     ->schema([
-                        Forms\Components\FileUpload::make('logo')
-                            ->label('Logo MTs')
-                            ->directory('mts')
-                            ->image()
-                            ->maxSize(2048),
-                        Forms\Components\FileUpload::make('hero_banner')
-                            ->label('Gambar Background Hero')
-                            ->directory('mts')
-                            ->image()
-                            ->maxSize(2048),
+                        MediaHelper::imageUpload('logo', 'Logo MTs', 'website', 'logo'),
+                        MediaHelper::imageUpload('hero_banner', 'Gambar Background Hero', 'jenjang', 'banner'),
                         Forms\Components\TextInput::make('hero_heading')
                             ->label('Judul Utama Hero')
                             ->required()
@@ -52,12 +44,7 @@ class MTsSettingResource extends Resource
                 
                 // Video Profil
                 Forms\Components\Section::make('Video Profil')
-                    ->schema([
-                        Forms\Components\TextInput::make('youtube_link')
-                            ->label('Link YouTube')
-                            ->url()
-                            ->placeholder('https://youtube.com/watch?v=...'),
-                    ]),
+                    ->schema(MediaHelper::youtubeFields('youtube_link')),
                 
                 // Program Unggulan
                 Forms\Components\Section::make('Program Unggulan')
@@ -182,14 +169,16 @@ class MTsSettingResource extends Resource
                 Forms\Components\Section::make('Galeri Kegiatan')
                     ->description('Upload foto-foto kegiatan santri MTs')
                     ->schema([
-                        Forms\Components\FileUpload::make('galeri')
-                            ->label('Foto Galeri')
-                            ->image()
-                            ->directory('mts/galeri')
-                            ->multiple()
-                            ->reorderable()
-                            ->maxFiles(20)
-                            ->helperText('Upload hingga 20 foto kegiatan santri'),
+                        Forms\Components\Repeater::make('galeri')
+                            ->label('Daftar Foto Galeri')
+                            ->schema([
+                                MediaHelper::imageUpload('image', 'Foto Galeri', 'gallery', 'content'),
+                                Forms\Components\TextInput::make('caption')->label('Caption Foto (Opsional)'),
+                            ])
+                            ->grid(2)
+                            ->columns(1)
+                            ->reorderableWithButtons()
+                            ->columnSpanFull(),
                     ]),
 
                 // Alur Pendaftaran
@@ -279,9 +268,7 @@ class MTsSettingResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListMTsSettings::route('/'),
-            'create' => Pages\CreateMTsSetting::route('/create'),
-            'edit' => Pages\EditMTsSetting::route('/{record}/edit'),
+            'index' => Pages\ManageMTsSetting::route('/'),
         ];
     }
 }

@@ -23,7 +23,7 @@ use Inertia\Inertia;
 Route::get('/', function () {
     return Inertia::render('LandingPage', [
         'news' => \App\Models\NewsPost::where('is_published', true)->latest('published_at')->take(4)->get(),
-        'testimonials' => \App\Models\Testimonial::all(),
+        'testimonials' => \App\Models\Testimonial::latest('updated_at')->get(),
         'programs' => \App\Models\Program::all(),
         'extracurriculars' => \App\Models\Extracurricular::all(),
         'settings' => \App\Models\Setting::pluck('value', 'key')->toArray(),

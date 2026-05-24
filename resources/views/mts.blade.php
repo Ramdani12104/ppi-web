@@ -350,14 +350,23 @@
             @if($mtsSettings && $mtsSettings->galeri && count($mtsSettings->galeri) > 0)
                 <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                     @foreach($mtsSettings->galeri as $foto)
-                        <div class="relative group overflow-hidden rounded-2xl shadow-lg cursor-pointer" onclick="openLightbox('{{ asset('storage/' . $foto) }}')">
-                            <img src="{{ asset('storage/' . $foto) }}" alt="Galeri Kegiatan" class="w-full h-48 md:h-64 object-cover transition-transform duration-300 group-hover:scale-110">
-                            <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-                                <svg class="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        @php
+                            $imagePath = is_array($foto) ? ($foto['image'] ?? '') : $foto;
+                            $caption = is_array($foto) ? ($foto['caption'] ?? '') : '';
+                        @endphp
+                        @if($imagePath)
+                        <div class="relative group overflow-hidden rounded-2xl shadow-lg cursor-pointer" onclick="openLightbox('{{ asset('storage/' . $imagePath) }}')">
+                            <img src="{{ asset('storage/' . $imagePath) }}" alt="{{ $caption ?: 'Galeri Kegiatan' }}" class="w-full h-48 md:h-64 object-cover transition-transform duration-300 group-hover:scale-110">
+                            <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col items-center justify-center p-4 text-center">
+                                <svg class="w-12 h-12 text-white mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7"/>
                                 </svg>
+                                @if($caption)
+                                    <span class="text-white text-xs font-semibold leading-tight line-clamp-2">{{ $caption }}</span>
+                                @endif
                             </div>
                         </div>
+                        @endif
                     @endforeach
                 </div>
             @else

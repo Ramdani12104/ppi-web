@@ -17,6 +17,7 @@ class PesantrenProgramResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-sparkles';
     
     protected static ?string $navigationLabel = 'Program Pesantren';
+    protected static bool $shouldRegisterNavigation = false;
     protected static ?string $modelLabel = 'Program Pesantren';
     protected static ?string $pluralModelLabel = 'Program Pesantren';
     protected static ?string $slug = 'program-pesantren';

@@ -18,6 +18,7 @@ class WakafGalleryResource extends Resource
     protected static ?string $model = WakafGallery::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-photo';
+    protected static bool $shouldRegisterNavigation = false;
     protected static ?string $navigationGroup = 'Dukungan Pendidikan';
     protected static ?string $modelLabel = 'Galeri Dokumentasi';
     protected static ?string $pluralModelLabel = 'Galeri Dokumentasi';

@@ -18,6 +18,7 @@ class WakafProgramResource extends Resource
     protected static ?string $model = WakafProgram::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-group';
+    protected static bool $shouldRegisterNavigation = false;
     protected static ?string $navigationGroup = 'Dukungan Pendidikan';
     protected static ?string $modelLabel = 'Program Dukungan';
     protected static ?string $pluralModelLabel = 'Program Dukungan';

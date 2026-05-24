@@ -15,7 +15,7 @@ class FacilityResource extends Resource
     protected static ?string $model = Facility::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-building-office-2';
-    
+    protected static ?string $navigationGroup = 'Profil Pesantren';
     protected static ?string $navigationLabel = 'Fasilitas';
     protected static ?string $modelLabel = 'Fasilitas';
     protected static ?string $pluralModelLabel = 'Fasilitas';

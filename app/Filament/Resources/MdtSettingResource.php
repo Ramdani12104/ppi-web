@@ -8,11 +8,10 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables\Table;
 use Filament\Tables;
-use Filament\Forms\Components\Tabs;
+use App\Helpers\MediaHelper;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\RichEditor;
-use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Toggle;
 use Filament\Forms\Components\ColorPicker;
@@ -33,93 +32,108 @@ class MdtSettingResource extends Resource
     {
         return $form
             ->schema([
-                Tabs::make('MDT Settings')
-                    ->tabs([
-                        Tabs\Tab::make('Hero')
-                            ->schema([
-                                Toggle::make('is_active_hero')->label('Aktifkan Section Hero')->default(true),
-                                TextInput::make('hero_title')->label('Judul Hero')->required(),
-                                TextInput::make('hero_subtitle')->label('Subjudul Hero'),
-                                FileUpload::make('hero_banner')->label('Banner Hero')->image()->directory('mdt'),
-                                TextInput::make('hero_btn_register')->label('Teks Tombol Daftar'),
-                                TextInput::make('hero_btn_activity')->label('Teks Tombol Kegiatan'),
-                            ])->columns(2),
+                Section::make('Hero')
+                    ->description('Atur tampilan bagian teratas (Hero) halaman MDT')
+                    ->schema([
+                        Toggle::make('is_active_hero')->label('Aktifkan Section Hero')->default(true)->columnSpanFull(),
+                        TextInput::make('hero_title')->label('Judul Hero')->required(),
+                        TextInput::make('hero_subtitle')->label('Subjudul Hero'),
+                        MediaHelper::imageUpload('hero_banner', 'Banner Hero', 'jenjang', 'banner'),
+                        TextInput::make('hero_btn_register')->label('Teks Tombol Daftar'),
+                        TextInput::make('hero_btn_activity')->label('Teks Tombol Kegiatan'),
+                    ])->columns(2),
 
-                        Tabs\Tab::make('Tentang MDT')
+                Section::make('Tentang MDT')
+                    ->description('Informasi deskripsi umum mengenai MDT')
+                    ->schema([
+                        Toggle::make('is_active_about')->label('Aktifkan Section Tentang MDT')->default(true),
+                        TextInput::make('about_title')->label('Judul Tentang MDT')->columnSpanFull(),
+                        RichEditor::make('about_content')->label('Konten Tentang MDT')->columnSpanFull(),
+                        MediaHelper::imageUpload('about_image', 'Gambar Utama MDT', 'jenjang', 'content')->columnSpanFull(),
+                    ]),
+
+                Section::make('Video Profil MDT')
+                    ->description('Masukkan link video YouTube untuk mengenalkan MDT secara visual')
+                    ->schema(MediaHelper::youtubeFields('youtube_link')),
+
+                Section::make('Program Pembelajaran')
+                    ->description('Kelola program pembelajaran di MDT')
+                    ->schema([
+                        Toggle::make('is_active_programs')->label('Aktifkan Section Program')->default(true),
+                        Repeater::make('programs')
+                            ->relationship()
                             ->schema([
-                                Toggle::make('is_active_about')->label('Aktifkan Section Tentang MDT')->default(true),
-                                TextInput::make('about_title')->label('Judul Tentang MDT')->columnSpanFull(),
-                                RichEditor::make('about_content')->label('Konten Tentang MDT')->columnSpanFull(),
-                                FileUpload::make('about_image')->label('Gambar Utama MDT')->image()->directory('mdt')->columnSpanFull(),
+                                TextInput::make('icon')->label('Icon/Emoji (Opsional)'),
+                                TextInput::make('title')->label('Judul Program')->required(),
+                                Textarea::make('description')->label('Deskripsi Program'),
+                            ])->columns(3)->columnSpanFull(),
+                    ]),
+
+                Section::make('Keunggulan MDT')
+                    ->description('Mengapa memilih MDT kami')
+                    ->schema([
+                        Toggle::make('is_active_advantages')->label('Aktifkan Section Keunggulan')->default(true),
+                        Repeater::make('advantages')
+                            ->relationship()
+                            ->schema([
+                                TextInput::make('icon')->label('Icon/Emoji (Opsional)'),
+                                TextInput::make('title')->label('Judul Keunggulan')->required(),
+                                Textarea::make('description')->label('Deskripsi Keunggulan'),
+                            ])->columns(3)->columnSpanFull(),
+                    ]),
+
+                Section::make('Galeri Kegiatan')
+                    ->description('Galeri foto kegiatan santri MDT')
+                    ->schema([
+                        Toggle::make('is_active_gallery')->label('Aktifkan Section Galeri')->default(true),
+                        Repeater::make('galleries')
+                            ->relationship()
+                            ->schema([
+                                MediaHelper::imageUpload('image', 'Foto Galeri', 'gallery', 'content'),
+                                TextInput::make('caption')->label('Caption Foto (Opsional)'),
+                            ])
+                            ->grid(2)
+                            ->columns(1)
+                            ->reorderableWithButtons()
+                            ->orderColumn('sort_order')
+                            ->columnSpanFull(),
+                    ]),
+
+                Section::make('Jadwal & Informasi')
+                    ->description('Detail ringkas jadwal, target usia, fasilitas, dan kontak admin')
+                    ->schema([
+                        Toggle::make('is_active_info')->label('Aktifkan Section Informasi')->default(true)->columnSpanFull(),
+                        TextInput::make('info_schedule')->label('Jadwal Belajar Sore'),
+                        TextInput::make('info_age')->label('Usia Santri'),
+                        TextInput::make('info_facilities')->label('Fasilitas MDT'),
+                        TextInput::make('info_contact')->label('Kontak Admin MDT'),
+                    ])->columns(2),
+
+                Section::make('CTA Penutup')
+                    ->description('Ajakan bertindak / pendaftaran di bagian bawah halaman')
+                    ->schema([
+                        Toggle::make('is_active_cta')->label('Aktifkan Section CTA')->default(true)->columnSpanFull(),
+                        TextInput::make('cta_title')->label('Judul CTA'),
+                        TextInput::make('cta_desc')->label('Deskripsi CTA'),
+                        TextInput::make('cta_btn')->label('Teks Tombol CTA'),
+                        MediaHelper::imageUpload('cta_bg', 'Background CTA', 'jenjang', 'banner'),
+                    ])->columns(2),
+
+                Section::make('Tampilan & Publish')
+                    ->description('Atur warna tema dan status publikasi halaman MDT')
+                    ->schema([
+                        Section::make('Pengaturan Warna')
+                            ->schema([
+                                ColorPicker::make('color_primary')->label('Warna Latar (Putih Tulang / Cream Hangat)')->default('#fefaf4'),
+                                ColorPicker::make('color_button')->label('Warna Tombol (Hijau Pesantren Lembut)')->default('#2a5f4c'),
+                                ColorPicker::make('color_card')->label('Warna Card (Coklat Kitab / Gold Lembut)')->default('#d6c7b0'),
+                            ])->columns(3),
+                        
+                        Section::make('Publish')
+                            ->schema([
+                                Toggle::make('is_publish')->label('Publish Halaman MDT')->default(true),
                             ]),
-
-                        Tabs\Tab::make('Program Pembelajaran')
-                            ->schema([
-                                Toggle::make('is_active_programs')->label('Aktifkan Section Program')->default(true),
-                                Repeater::make('programs')
-                                    ->relationship()
-                                    ->schema([
-                                        TextInput::make('icon')->label('Icon/Emoji (Opsional)'),
-                                        TextInput::make('title')->label('Judul Program')->required(),
-                                        Textarea::make('description')->label('Deskripsi Program'),
-                                    ])->columns(3)->columnSpanFull(),
-                            ]),
-
-                        Tabs\Tab::make('Keunggulan MDT')
-                            ->schema([
-                                Toggle::make('is_active_advantages')->label('Aktifkan Section Keunggulan')->default(true),
-                                Repeater::make('advantages')
-                                    ->relationship()
-                                    ->schema([
-                                        TextInput::make('icon')->label('Icon/Emoji (Opsional)'),
-                                        TextInput::make('title')->label('Judul Keunggulan')->required(),
-                                        Textarea::make('description')->label('Deskripsi Keunggulan'),
-                                    ])->columns(3)->columnSpanFull(),
-                            ]),
-
-                        Tabs\Tab::make('Galeri Kegiatan')
-                            ->schema([
-                                Toggle::make('is_active_gallery')->label('Aktifkan Section Galeri')->default(true),
-                                Repeater::make('galleries')
-                                    ->relationship()
-                                    ->schema([
-                                        FileUpload::make('image')->image()->directory('mdt')->required(),
-                                    ])->grid(3)->columnSpanFull(),
-                            ]),
-
-                        Tabs\Tab::make('Jadwal & Informasi')
-                            ->schema([
-                                Toggle::make('is_active_info')->label('Aktifkan Section Informasi')->default(true)->columnSpanFull(),
-                                TextInput::make('info_schedule')->label('Jadwal Belajar Sore'),
-                                TextInput::make('info_age')->label('Usia Santri'),
-                                TextInput::make('info_facilities')->label('Fasilitas MDT'),
-                                TextInput::make('info_contact')->label('Kontak Admin MDT'),
-                            ])->columns(2),
-
-                        Tabs\Tab::make('CTA Penutup')
-                            ->schema([
-                                Toggle::make('is_active_cta')->label('Aktifkan Section CTA')->default(true)->columnSpanFull(),
-                                TextInput::make('cta_title')->label('Judul CTA'),
-                                TextInput::make('cta_desc')->label('Deskripsi CTA'),
-                                TextInput::make('cta_btn')->label('Teks Tombol CTA'),
-                                FileUpload::make('cta_bg')->label('Background CTA')->image()->directory('mdt'),
-                            ])->columns(2),
-
-                        Tabs\Tab::make('Tampilan & Publish')
-                            ->schema([
-                                Section::make('Pengaturan Warna')
-                                    ->schema([
-                                        ColorPicker::make('color_primary')->label('Warna Latar (Putih Tulang / Cream Hangat)')->default('#fefaf4'),
-                                        ColorPicker::make('color_button')->label('Warna Tombol (Hijau Pesantren Lembut)')->default('#2a5f4c'),
-                                        ColorPicker::make('color_card')->label('Warna Card (Coklat Kitab / Gold Lembut)')->default('#d6c7b0'),
-                                    ])->columns(3),
-                                
-                                Section::make('Publish')
-                                    ->schema([
-                                        Toggle::make('is_publish')->label('Publish Halaman MDT')->default(true),
-                                    ]),
-                            ]),
-                    ])->columnSpanFull()
+                    ]),
             ]);
     }
 
@@ -139,9 +153,7 @@ class MdtSettingResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListMdtSettings::route('/'),
-            'create' => Pages\CreateMdtSetting::route('/create'),
-            'edit' => Pages\EditMdtSetting::route('/{record}/edit'),
+            'index' => Pages\ManageMdtSetting::route('/'),
         ];
     }
 }

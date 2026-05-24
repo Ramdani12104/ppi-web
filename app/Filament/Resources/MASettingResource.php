@@ -10,6 +10,7 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use App\Helpers\MediaHelper;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
@@ -18,6 +19,7 @@ class MASettingResource extends Resource
     protected static ?string $model = MASetting::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-cog';
+    protected static ?string $navigationGroup = 'Program Pendidikan';
     protected static ?string $navigationLabel = 'Pengaturan Halaman MA';
     protected static ?string $modelLabel = 'Pengaturan MA';
     protected static ?int $navigationSort = 1;
@@ -30,12 +32,7 @@ class MASettingResource extends Resource
                 Forms\Components\Section::make('Identitas & Branding')
                     ->description('Upload logo dan atur tampilan hero section halaman MA')
                     ->schema([
-                        Forms\Components\FileUpload::make('logo')
-                            ->label('Logo MA')
-                            ->image()
-                            ->directory('ma')
-                            ->maxSize(2048)
-                            ->acceptedFileTypes(['image/png', 'image/jpeg', 'image/jpg']),
+                        MediaHelper::imageUpload('logo', 'Logo MA', 'website', 'logo'),
                         Forms\Components\TextInput::make('hero_heading')
                             ->label('Judul Besar Hero Section')
                             ->placeholder('Contoh: Madrasah Aliyah Al-Ittihaad')
@@ -44,11 +41,7 @@ class MASettingResource extends Resource
                             ->label('Sub-judul Hero Section')
                             ->placeholder('Contoh: Jenjang pendidikan tingkat atas yang berkomitmen...')
                             ->rows(2),
-                        Forms\Components\FileUpload::make('hero_banner')
-                            ->label('Gambar Background Hero')
-                            ->image()
-                            ->directory('ma')
-                            ->required(),
+                        MediaHelper::imageUpload('hero_banner', 'Gambar Background Hero', 'jenjang', 'banner'),
                         Forms\Components\TextInput::make('hero_title')
                             ->label('Judul Sambutan')
                             ->required()
@@ -59,13 +52,7 @@ class MASettingResource extends Resource
                 // Video Profile
                 Forms\Components\Section::make('Video Profil')
                     ->description('Link YouTube untuk video profil kegiatan MA')
-                    ->schema([
-                        Forms\Components\TextInput::make('youtube_link')
-                            ->label('Link YouTube Video Profil MA')
-                            ->url()
-                            ->placeholder('https://www.youtube.com/embed/...')
-                            ->required(),
-                    ]),
+                    ->schema(MediaHelper::youtubeFields('youtube_link')),
 
                 // Program Jurusan (Dynamic Content)
                 Forms\Components\Section::make('Program Peminatan (Jurusan)')
@@ -73,11 +60,7 @@ class MASettingResource extends Resource
                     ->schema([
                         Forms\Components\Repeater::make('jurusan')
                             ->schema([
-                                Forms\Components\FileUpload::make('icon')
-                                    ->label('Icon/Gambar Jurusan')
-                                    ->image()
-                                    ->directory('ma/jurusan')
-                                    ->maxFiles(1),
+                                MediaHelper::imageUpload('icon', 'Icon/Gambar Jurusan', 'jenjang', 'avatar'),
                                 Forms\Components\TextInput::make('emoji')
                                     ->label('Emoji (opsional, jika tidak ada gambar)')
                                     ->placeholder('📚')
@@ -142,11 +125,7 @@ class MASettingResource extends Resource
                         Forms\Components\Repeater::make('fasilitas')
                             ->label('Foto Fasilitas')
                             ->schema([
-                                Forms\Components\FileUpload::make('foto')
-                                    ->label('Foto Fasilitas')
-                                    ->image()
-                                    ->directory('ma/fasilitas')
-                                    ->required(),
+                                MediaHelper::imageUpload('foto', 'Foto Fasilitas', 'gallery', 'content'),
                                 Forms\Components\TextInput::make('nama')
                                     ->label('Nama Fasilitas')
                                     ->required()
@@ -242,14 +221,16 @@ class MASettingResource extends Resource
                 Forms\Components\Section::make('Galeri Kegiatan')
                     ->description('Upload foto-foto kegiatan santri MA')
                     ->schema([
-                        Forms\Components\FileUpload::make('galeri')
-                            ->label('Foto Galeri')
-                            ->image()
-                            ->directory('ma/galeri')
-                            ->multiple()
-                            ->reorderable()
-                            ->maxFiles(20)
-                            ->helperText('Upload hingga 20 foto kegiatan santri'),
+                        Forms\Components\Repeater::make('galeri')
+                            ->label('Daftar Foto Galeri')
+                            ->schema([
+                                MediaHelper::imageUpload('image', 'Foto Galeri', 'gallery', 'content'),
+                                Forms\Components\TextInput::make('caption')->label('Caption Foto (Opsional)'),
+                            ])
+                            ->grid(2)
+                            ->columns(1)
+                            ->reorderableWithButtons()
+                            ->columnSpanFull(),
                     ]),
 
                 // Alur Pendaftaran
@@ -342,9 +323,7 @@ class MASettingResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListMASettings::route('/'),
-            'create' => Pages\CreateMASetting::route('/create'),
-            'edit' => Pages\EditMASetting::route('/{record}/edit'),
+            'index' => Pages\ManageMASetting::route('/'),
         ];
     }
 }

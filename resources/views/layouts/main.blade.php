@@ -1,3 +1,6 @@
+@php
+    $globalSettings = \App\Models\Setting::pluck('value', 'key')->toArray();
+@endphp
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -58,16 +61,19 @@
             <!-- SISI KIRI: LOGO -->
             <div class="flex items-center gap-4 shrink-0">
                 <a href="/" class="flex items-center gap-4">
-                    <!-- Logo Image Placeholder -->
-                    <img src="{{ asset('images/logo.png') }}" alt="Logo PPI 104" class="h-12 w-auto" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                    <!-- Fallback Logo if image not found -->
-                    <div class="bg-emerald-800 text-white w-16 h-16 flex items-center justify-center rounded-2xl font-black text-3xl shadow-lg border-2 border-emerald-500" style="display:none;">
-                        104
-                    </div>
+                    <!-- Logo Image -->
+                    @if(isset($globalSettings['logo_website']) && $globalSettings['logo_website'])
+                        <img src="{{ asset('storage/' . $globalSettings['logo_website']) }}" alt="Logo {{ $globalSettings['header_title'] ?? 'PPI 104' }}" class="w-16 h-16 object-contain rounded-2xl shadow-lg border-2 border-emerald-500 bg-white">
+                    @else
+                        <!-- Fallback Logo if image not found -->
+                        <div class="bg-emerald-800 text-white w-16 h-16 flex items-center justify-center rounded-2xl font-black text-3xl shadow-lg border-2 border-emerald-500">
+                            104
+                        </div>
+                    @endif
                     <div class="flex flex-col text-left border-l-2 border-slate-200 pl-4">
-                        <span class="text-[11px] font-black tracking-[0.2em] text-emerald-800 leading-tight uppercase">Pesantren Persatuan Islam 104</span>
-                        <span class="text-2xl font-black text-slate-800 leading-none uppercase tracking-tighter">Al-Ittihad Cikajang</span>
-                        <span class="text-[10px] font-bold text-slate-400 mt-1 uppercase tracking-widest italic">Melayani Masyarakat Menuju Ridho Allah</span>
+                        <span class="text-[11px] font-black tracking-[0.2em] text-emerald-800 leading-tight uppercase">{{ $globalSettings['header_title'] ?? 'Pesantren Persatuan Islam 104' }}</span>
+                        <span class="text-2xl font-black text-slate-800 leading-none uppercase tracking-tighter">{{ $globalSettings['header_subtitle'] ?? 'Al-Ittihad Cikajang' }}</span>
+                        <span class="text-[10px] font-bold text-slate-400 mt-1 uppercase tracking-widest italic">{{ $globalSettings['header_tagline'] ?? 'Melayani Masyarakat Menuju Ridho Allah' }}</span>
                     </div>
                 </a>
             </div>
@@ -195,12 +201,16 @@
             <div class="grid md:grid-cols-3 gap-8">
                 <div>
                     <div class="flex items-center gap-3 mb-4">
-                        <div class="bg-emerald-800 text-white w-12 h-12 flex items-center justify-center rounded-xl font-black text-xl shadow-lg border-2 border-emerald-500">
-                            104
-                        </div>
+                        @if(isset($globalSettings['logo_website']) && $globalSettings['logo_website'])
+                            <img src="{{ asset('storage/' . $globalSettings['logo_website']) }}" alt="Logo" class="w-12 h-12 object-contain rounded-xl shadow-lg bg-white">
+                        @else
+                            <div class="bg-emerald-800 text-white w-12 h-12 flex items-center justify-center rounded-xl font-black text-xl shadow-lg border-2 border-emerald-500">
+                                104
+                            </div>
+                        @endif
                         <div>
-                            <h3 class="font-arabic text-lg font-bold">Persatuan Islam 104</h3>
-                            <p class="text-emerald-200 text-sm">Al Ittihaad Cikajang</p>
+                            <h3 class="font-arabic text-lg font-bold">{{ $globalSettings['header_title'] ?? 'Persatuan Islam 104' }}</h3>
+                            <p class="text-emerald-200 text-sm">{{ $globalSettings['header_subtitle'] ?? 'Al Ittihaad Cikajang' }}</p>
                         </div>
                     </div>
                     <p class="text-emerald-200 text-sm leading-relaxed">
@@ -221,16 +231,16 @@
 
                 <div>
                     <h4 class="font-bold mb-4 text-emerald-100">Hubungi Kami</h4>
-                    <ul class="space-y-2 text-sm text-emerald-200">
-                        <li>📍 Cikajang, Garut, Jawa Barat</li>
-                        <li>📞 (0262) 123456</li>
-                        <li>✉️ info@ppi104-cikajang.sch.id</li>
+                    <ul class="space-y-2 text-sm text-emerald-200 text-left">
+                        <li>📍 {{ $globalSettings['footer_address'] ?? 'Cikajang, Garut, Jawa Barat' }}</li>
+                        <li>📞 {{ $globalSettings['footer_phone'] ?? '(0262) 123456' }}</li>
+                        <li>✉️ {{ $globalSettings['footer_email'] ?? 'info@ppi104-cikajang.sch.id' }}</li>
                     </ul>
                 </div>
             </div>
 
             <div class="border-t border-emerald-800 mt-8 pt-8 text-center">
-                <p class="text-emerald-200 text-sm">© {{ date('Y') }} Pesantren Persatuan Islam 104 Al Ittihaad Cikajang.</p>
+                <p class="text-emerald-200 text-sm">{{ $globalSettings['footer_copyright'] ?? '© ' . date('Y') . ' Pesantren Persatuan Islam 104 Al Ittihaad Cikajang.' }}</p>
             </div>
         </div>
     </footer>

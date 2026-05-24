@@ -23,7 +23,7 @@ class PageResource extends Resource
 {
     protected static ?string $model = Page::class;
     protected static ?string $navigationIcon = 'heroicon-o-document-text';
-    protected static ?string $navigationGroup = 'Landing Page';
+    protected static ?string $navigationGroup = 'Website';
     protected static ?string $modelLabel = 'Halaman CMS';
     protected static ?string $pluralModelLabel = 'Semua Halaman (Pages)';
 

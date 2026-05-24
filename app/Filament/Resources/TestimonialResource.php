@@ -17,7 +17,12 @@ class TestimonialResource extends Resource
 {
     protected static ?string $model = Testimonial::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-chat-bubble-left-ellipsis';
+    protected static ?string $navigationGroup = 'Profil Pesantren';
+    protected static ?string $navigationLabel = 'Testimoni';
+    protected static ?string $modelLabel = 'Testimoni';
+    protected static ?string $pluralModelLabel = 'Testimoni';
+    protected static ?int $navigationSort = 4;
 
     public static function form(Form $form): Form
     {

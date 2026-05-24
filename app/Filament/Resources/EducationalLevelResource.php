@@ -23,6 +23,7 @@ class EducationalLevelResource extends Resource
     protected static ?string $model = EducationalLevel::class;
     protected static ?string $navigationIcon = 'heroicon-o-academic-cap';
     protected static ?string $navigationGroup = 'Jenjang Pendidikan';
+    protected static bool $shouldRegisterNavigation = false;
     protected static ?string $modelLabel = 'Jenjang';
     protected static ?string $pluralModelLabel = 'Semua Jenjang';
 

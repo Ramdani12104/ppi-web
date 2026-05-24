@@ -23,6 +23,7 @@ class PengaturanPendiriResource extends Resource
     protected static ?string $model = PengaturanPendiri::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-users';
+    protected static bool $shouldRegisterNavigation = false;
     protected static ?string $navigationGroup = 'Profil Pesantren';
     protected static ?string $navigationLabel = 'Pengaturan Pendiri';
     protected static ?string $modelLabel = 'Halaman Pendiri';
