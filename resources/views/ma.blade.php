@@ -274,7 +274,7 @@
                 <div class="rounded-3xl overflow-hidden shadow-2xl aspect-video bg-slate-100">
                     <iframe 
                         class="w-full h-full" 
-                        src="{{ $maSettings->youtube_link ?? 'https://www.youtube.com/embed/6fRorJATZbk?si=s_ea4XFLs-BtbFMK' }}" 
+                        src="{{ \App\Helpers\MediaHelper::getAnyEmbedUrl($maSettings->youtube_link) ?? 'https://www.youtube.com/embed/6fRorJATZbk?si=s_ea4XFLs-BtbFMK' }}" 
                         title="Profil MA Al-Ittihaad" 
                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
                         allowFullScreen

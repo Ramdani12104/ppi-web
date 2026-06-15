@@ -42,11 +42,9 @@ export default function LandingPage({ news, testimonials, programs, extracurricu
   // Helper to parse YouTube Video link to embed URL
   const getYoutubeEmbedUrl = (url) => {
     if (!url) return null;
-    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+    const regExp = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/|youtube\.com\/shorts\/)([^"&?\/ ]{11})/;
     const match = url.match(regExp);
-    return (match && match[2].length === 11) 
-      ? `https://www.youtube.com/embed/${match[2]}` 
-      : url;
+    return match ? `https://www.youtube.com/embed/${match[1]}` : url;
   };
 
   // Resolve individual slider background images with fallbacks

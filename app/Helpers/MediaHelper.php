@@ -104,4 +104,39 @@ class MediaHelper
 
         return $url;
     }
+
+    /**
+     * Converts YouTube, Instagram, TikTok, or Facebook video URLs to iframe-compatible embed URLs.
+     */
+    public static function getAnyEmbedUrl(?string $url): ?string
+    {
+        if (empty($url)) {
+            return null;
+        }
+
+        $url = trim($url);
+
+        // 1. YouTube
+        $ytPattern = '/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/|youtube\.com\/shorts\/)([^"&?\/ ]{11})/';
+        if (preg_match($ytPattern, $url, $matches)) {
+            return 'https://www.youtube.com/embed/' . $matches[1];
+        }
+
+        // 2. Instagram
+        if (preg_match('/instagram\.com\/(?:p|reel|tv)\/([A-Za-z0-9_-]+)/i', $url, $matches)) {
+            return 'https://www.instagram.com/p/' . $matches[1] . '/embed/';
+        }
+
+        // 3. TikTok
+        if (preg_match('/tiktok\.com\/@[^\/]+\/video\/(\d+)/i', $url, $matches)) {
+            return 'https://www.tiktok.com/embed/' . $matches[1];
+        }
+
+        // 4. Facebook
+        if (str_contains($url, 'facebook.com')) {
+            return 'https://www.facebook.com/plugins/video.php?href=' . urlencode($url) . '&show_text=0';
+        }
+
+        return $url;
+    }
 }

@@ -192,9 +192,26 @@
     <!-- 2. SAMBUTAN / AHLAN WA SAHLAN SECTION -->
     <section id="sambutan-mts" class="py-24 bg-white flex justify-center w-full px-6">
         <div class="max-w-7xl w-full grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-            <!-- Left Image Box -->
+            <!-- Left Image/Video Box -->
             <div class="relative rounded-[2rem] overflow-hidden shadow-xl aspect-[4/3] bg-slate-50 border border-slate-150">
-                @if($mtsSettings && $mtsSettings->hero_banner)
+                @if($mtsSettings && ($mtsSettings->sambutan_media_type ?? 'image') === 'video' && $mtsSettings->sambutan_video_url)
+                    @php
+                        $embedUrl = \App\Helpers\MediaHelper::getAnyEmbedUrl($mtsSettings->sambutan_video_url);
+                    @endphp
+                    @if($embedUrl)
+                        <iframe 
+                            src="{{ $embedUrl }}" 
+                            class="w-full h-full animate-fade-in"
+                            frameborder="0" 
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                            allowfullscreen>
+                        </iframe>
+                    @else
+                        <div class="w-full h-full bg-black flex items-center justify-center">
+                            <span class="text-red-500 font-medium">Video tidak dapat dimuat</span>
+                        </div>
+                    @endif
+                @elseif($mtsSettings && $mtsSettings->hero_banner)
                     <img src="{{ asset('storage/' . $mtsSettings->hero_banner) }}" alt="MTs Dokumentasi" class="w-full h-full object-cover">
                 @else
                     <div class="w-full h-full bg-gradient-to-tr from-slate-100 to-slate-200 flex items-center justify-center">
@@ -206,14 +223,22 @@
             <!-- Right Content Box -->
             <div class="space-y-6 text-left">
                 <span class="text-[#D96B43] font-bold text-xs uppercase tracking-widest">AHLAN WA SAHLAN</span>
-                <h2 class="text-3xl md:text-4xl font-black text-slate-950 uppercase tracking-tight">Madrasah Tsanawiyah Al-Ittihaad</h2>
+                <h2 class="text-3xl md:text-4xl font-black text-slate-950 uppercase tracking-tight">
+                    {{ ($mtsSettings && $mtsSettings->sambutan_title) ? $mtsSettings->sambutan_title : 'Madrasah Tsanawiyah Al-Ittihaad' }}
+                </h2>
                 <div class="w-12 h-1 bg-[#D96B43] rounded-full"></div>
                 <p class="text-slate-600 leading-relaxed font-medium">
-                    Selamat datang di halaman resmi Madrasah Tsanawiyah (MTs) Al-Ittihaad Cikajang. Sebagai lembaga pendidikan tingkat menengah pertama di bawah naungan pondok pesantren, kami berkomitmen menyelenggarakan pendidikan terpadu yang menyatukan kurikulum nasional Kemenag dengan nilai-nilai kepesantrenan untuk melahirkan generasi yang bertauhid lurus, berakhlak mulia, dan unggul secara akademis.
+                    {{ ($mtsSettings && $mtsSettings->sambutan_desc) ? $mtsSettings->sambutan_desc : 'Selamat datang di halaman resmi Madrasah Tsanawiyah (MTs) Al-Ittihaad Cikajang. Sebagai lembaga pendidikan tingkat menengah pertama di bawah naungan pondok pesantren, kami berkomitmen menyelenggarakan pendidikan terpadu yang menyatukan kurikulum nasional Kemenag dengan nilai-nilai kepesantrenan untuk melahirkan generasi yang bertauhid lurus, berakhlak mulia, dan unggul secara akademis.' }}
                 </p>
-                <blockquote class="border-l-4 border-[#D96B43] pl-4 italic text-slate-700 font-medium leading-relaxed">
-                    "Membimbing santri melewati masa transisi remaja dengan fondasi adab dan kepemimpinan islami."
-                </blockquote>
+                @if($mtsSettings && $mtsSettings->sambutan_quote)
+                    <blockquote class="border-l-4 border-[#D96B43] pl-4 italic text-slate-700 font-medium leading-relaxed">
+                        {!! nl2br(e($mtsSettings->sambutan_quote)) !!}
+                    </blockquote>
+                @elseif(!$mtsSettings || !isset($mtsSettings->sambutan_quote))
+                    <blockquote class="border-l-4 border-[#D96B43] pl-4 italic text-slate-700 font-medium leading-relaxed">
+                        "Membimbing santri melewati masa transisi remaja dengan fondasi adab dan kepemimpinan islami."
+                    </blockquote>
+                @endif
             </div>
         </div>
     </section>
@@ -627,30 +652,62 @@
                 <div class="lg:col-span-7 flex">
                     <div class="w-full bg-white p-3 rounded-2xl shadow-lg border border-slate-150 flex flex-col justify-center h-full">
                         @php
-                            $rawUrl = $mtsSettings->youtube_kegiatan_link ?? '';
+                            $mediaType = $mtsSettings->kegiatan_media_type ?? 'youtube';
+                            $hasVideo = false;
                             $embedUrl = '';
-                            if ($rawUrl) {
-                                $regExp = '/^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=|\/shorts\/)([^#\&\?]*).*/';
-                                preg_match($regExp, $rawUrl, $matches);
-                                if (isset($matches[2]) && strlen($matches[2]) === 11) {
-                                    $embedUrl = 'https://www.youtube.com/embed/' . $matches[2];
-                                } else {
-                                    $embedUrl = $rawUrl;
+                            $embedCode = '';
+                            $videoFile = '';
+                            
+                            if ($mtsSettings) {
+                                if ($mediaType === 'youtube' && $mtsSettings->youtube_kegiatan_link) {
+                                    $embedUrl = \App\Helpers\MediaHelper::getAnyEmbedUrl($mtsSettings->youtube_kegiatan_link);
+                                    if ($embedUrl) {
+                                        $hasVideo = true;
+                                    }
+                                } elseif ($mediaType === 'embed' && $mtsSettings->kegiatan_embed_code) {
+                                    $embedCode = $mtsSettings->kegiatan_embed_code;
+                                    $hasVideo = true;
+                                } elseif ($mediaType === 'local' && $mtsSettings->kegiatan_video_file) {
+                                    $videoFile = $mtsSettings->kegiatan_video_file;
+                                    $hasVideo = true;
                                 }
                             }
+                            
+                            // Fallback if no configuration is set yet
+                            if (!$mtsSettings || (!$mtsSettings->youtube_kegiatan_link && !$mtsSettings->kegiatan_embed_code && !$mtsSettings->kegiatan_video_file)) {
+                                // Default fallback YouTube video
+                                $embedUrl = 'https://www.youtube.com/embed/6fRorJATZbk';
+                                $hasVideo = true;
+                                $mediaType = 'youtube';
+                            }
                         @endphp
-                        @if($embedUrl)
-                            <div class="aspect-video w-full rounded-xl overflow-hidden bg-black shadow-inner">
-                                <iframe 
-                                    src="{{ $embedUrl }}" 
-                                    class="w-full h-full"
-                                    frameborder="0" 
-                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                                    allowfullscreen>
-                                </iframe>
-                            </div>
+                        @if($hasVideo)
+                            @if($mediaType === 'youtube')
+                                <div class="aspect-video w-full rounded-xl overflow-hidden bg-black shadow-inner">
+                                    <iframe 
+                                        src="{{ $embedUrl }}" 
+                                        class="w-full h-full animate-fade-in"
+                                        frameborder="0" 
+                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                        allowfullscreen>
+                                    </iframe>
+                                </div>
+                            @elseif($mediaType === 'embed')
+                                <div class="w-full min-h-[350px] flex items-center justify-center rounded-xl bg-slate-50 overflow-hidden shadow-inner p-2 border border-slate-100 relative">
+                                    <div class="w-full flex justify-center text-center animate-fade-in">
+                                        {!! $embedCode !!}
+                                    </div>
+                                </div>
+                            @elseif($mediaType === 'local')
+                                <div class="aspect-video w-full rounded-xl overflow-hidden bg-black shadow-inner">
+                                    <video controls class="w-full h-full object-contain animate-fade-in">
+                                        <source src="{{ asset('storage/' . $videoFile) }}" type="video/mp4">
+                                        Browser Anda tidak mendukung pemutaran video.
+                                    </video>
+                                </div>
+                            @endif
                         @else
-                            <div class="aspect-video w-full rounded-xl bg-gradient-to-tr from-[#22140C] to-[#D96B43]/80 flex flex-col items-center justify-center text-white p-6 text-center">
+                            <div class="aspect-video w-full rounded-xl bg-gradient-to-tr from-[#22140C] to-[#D96B43]/80 flex flex-col items-center justify-center text-white p-6 text-center animate-fade-in">
                                 <span class="text-5xl mb-4">🎥</span>
                                 <h3 class="text-lg font-bold uppercase tracking-wider text-[#D96B43]">Video Kegiatan</h3>
                                 <p class="text-xs text-slate-200 mt-1">Video dokumentasi kegiatan sedang disiapkan.</p>

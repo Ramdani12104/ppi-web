@@ -50,6 +50,14 @@ class MTsSetting extends Model
         'faq',
         'whatsapp_admin',
         'ekstrakurikuler',
+        'sambutan_title',
+        'sambutan_desc',
+        'sambutan_quote',
+        'sambutan_media_type',
+        'sambutan_video_url',
+        'kegiatan_media_type',
+        'kegiatan_embed_code',
+        'kegiatan_video_file',
     ];
     
     protected $casts = [

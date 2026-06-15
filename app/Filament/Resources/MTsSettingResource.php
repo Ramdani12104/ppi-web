@@ -35,6 +35,40 @@ class MTsSettingResource extends Resource
                     ])
                     ->columns(1),
 
+                // Sambutan / Ahlan Wa Sahlan
+                Forms\Components\Section::make('Sambutan (Ahlan Wa Sahlan)')
+                    ->description('Kelola judul, deskripsi, kutipan, dan media (foto/video) untuk bagian Sambutan')
+                    ->schema([
+                        Forms\Components\TextInput::make('sambutan_title')
+                            ->label('Judul Sambutan')
+                            ->placeholder('Contoh: Madrasah Tsanawiyah Al-Ittihaad')
+                            ->maxLength(255),
+                        Forms\Components\Textarea::make('sambutan_desc')
+                            ->label('Deskripsi Sambutan')
+                            ->rows(4)
+                            ->placeholder('Selamat datang di halaman resmi...'),
+                        Forms\Components\Textarea::make('sambutan_quote')
+                            ->label('Kutipan / Quote Sambutan')
+                            ->rows(2)
+                            ->placeholder('Membimbing santri melewati masa transisi...'),
+                        Forms\Components\Select::make('sambutan_media_type')
+                            ->label('Tipe Media Samping')
+                            ->options([
+                                'image' => 'Gambar/Foto',
+                                'video' => 'Video (YouTube/Sosial Media)',
+                            ])
+                            ->default('image')
+                            ->reactive()
+                            ->required(),
+                        MediaHelper::imageUpload('hero_banner', 'Foto Sambutan', 'website', 'banner')
+                            ->visible(fn (Forms\Get $get) => $get('sambutan_media_type') !== 'video'),
+                        Forms\Components\TextInput::make('sambutan_video_url')
+                            ->label('Link Video Sambutan (YouTube/Instagram/Facebook/dll)')
+                            ->placeholder('Masukkan link video YouTube atau URL lainnya')
+                            ->visible(fn (Forms\Get $get) => $get('sambutan_media_type') === 'video'),
+                    ])
+                    ->columns(1),
+
                 // Warna Tema Halaman
                 Forms\Components\Section::make('Warna Tema Halaman')
                     ->description('Atur warna tema utama dan aksen untuk seluruh halaman ini')
@@ -183,7 +217,44 @@ class MTsSettingResource extends Resource
                 
                 // Video Kegiatan
                 Forms\Components\Section::make('Video Kegiatan / Galeri')
-                    ->schema(MediaHelper::youtubeFields('youtube_kegiatan_link')),
+                    ->description('Kelola media video utama untuk bagian Keseharian & Galeri Kegiatan')
+                    ->schema([
+                        Forms\Components\Select::make('kegiatan_media_type')
+                            ->label('Tipe Media Video')
+                            ->options([
+                                'youtube' => 'Link Video YouTube (Otomatis)',
+                                'embed' => 'Kode Embed Kustom (Iframe HTML dari Instagram/TikTok/Facebook)',
+                                'local' => 'Unggah File Video Lokal (MP4)',
+                            ])
+                            ->default('youtube')
+                            ->reactive()
+                            ->required(),
+                        
+                        // For YouTube Option
+                        Forms\Components\TextInput::make('youtube_kegiatan_link')
+                            ->label('Link Video YouTube')
+                            ->placeholder('https://www.youtube.com/watch?v=...')
+                            ->url()
+                            ->visible(fn (Forms\Get $get) => $get('kegiatan_media_type') === 'youtube'),
+                        
+                        // For Custom Embed HTML Option
+                        Forms\Components\Textarea::make('kegiatan_embed_code')
+                            ->label('Kode Embed Kustom (HTML Iframe)')
+                            ->helperText('Salin kode embed/sematkan (biasanya diawali dengan <iframe...) dari Instagram, Facebook, atau TikTok.')
+                            ->rows(4)
+                            ->visible(fn (Forms\Get $get) => $get('kegiatan_media_type') === 'embed'),
+
+                        // For Local Video File Option
+                        Forms\Components\FileUpload::make('kegiatan_video_file')
+                            ->label('Unggah File Video (MP4)')
+                            ->disk('public')
+                            ->directory('videos')
+                            ->visibility('public')
+                            ->acceptedFileTypes(['video/mp4'])
+                            ->maxSize(20480) // 20MB limit
+                            ->helperText('Format: MP4. Maksimal ukuran: 20MB.')
+                            ->visible(fn (Forms\Get $get) => $get('kegiatan_media_type') === 'local'),
+                    ]),
                 
                 // Program Unggulan
                 Forms\Components\Section::make('Program Unggulan')
