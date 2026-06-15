@@ -1,13 +1,7 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 @import '../../../../vendor/filament/filament/resources/css/theme.css';
 
 @config 'tailwind.config.js';
-
-/* ============================================
-   PPI 104 Admin Panel - Premium Light Theme
-   ============================================ */
-
-/* Google Fonts */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 
 /* ── Root Variables ── */
 :root {
@@ -27,27 +21,29 @@ body {
 
 /* ── Sidebar ── */
 .fi-sidebar {
-    background: #ffffff !important;
-    border-right: 1px solid #e2e8f0 !important;
-    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.04) !important;
+    background: #022c22 !important; /* Deep forest green */
+    border-right: none !important;
+    box-shadow: 4px 0 30px rgba(0, 0, 0, 0.1) !important;
 }
 
 .fi-sidebar-nav {
     background: transparent !important;
+    padding-top: 1rem !important;
 }
 
 /* Sidebar Header / Brand */
 .fi-sidebar-header {
-    background: linear-gradient(135deg, #065f46 0%, #059669 100%) !important;
-    padding: 1.25rem 1rem !important;
-    border-bottom: none !important;
+    background: #022c22 !important;
+    padding: 1.5rem 1.25rem !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
 }
 
 .fi-sidebar-header .fi-brand-name {
-    color: #ffffff !important;
-    font-weight: 800 !important;
-    font-size: 1rem !important;
-    letter-spacing: -0.01em !important;
+    color: #fef08a !important; /* Gold brand name text */
+    font-weight: 900 !important;
+    font-size: 1.15rem !important;
+    letter-spacing: -0.02em !important;
+    font-family: 'Plus Jakarta Sans', sans-serif !important;
 }
 
 .fi-sidebar-header .fi-logo {
@@ -56,36 +52,49 @@ body {
 
 /* Navigation Group Labels */
 .fi-sidebar-group-label {
-    font-size: 0.6875rem !important;
-    font-weight: 700 !important;
-    letter-spacing: 0.08em !important;
+    font-size: 0.7rem !important;
+    font-weight: 800 !important;
+    letter-spacing: 0.1em !important;
     text-transform: uppercase !important;
-    color: #94a3b8 !important;
-    padding: 0.875rem 1rem 0.375rem !important;
+    color: rgba(255, 255, 255, 0.4) !important;
+    padding: 1rem 1.25rem 0.5rem !important;
 }
 
 /* Sidebar Nav Items */
 .fi-sidebar-item-button {
-    border-radius: 0.625rem !important;
-    margin: 0.125rem 0.5rem !important;
-    padding: 0.5rem 0.75rem !important;
-    color: #475569 !important;
-    font-weight: 500 !important;
+    border-radius: 0.5rem !important;
+    margin: 0.125rem 0.75rem !important;
+    padding: 0.625rem 1rem !important;
+    color: rgba(255, 255, 255, 0.75) !important;
+    font-weight: 600 !important;
     font-size: 0.875rem !important;
-    transition: all 0.15s ease !important;
+    transition: all 0.2s ease !important;
 }
 
 .fi-sidebar-item-button:hover {
-    background: #f0fdf4 !important;
-    color: #065f46 !important;
+    background: rgba(255, 255, 255, 0.06) !important;
+    color: #ffffff !important;
 }
 
 .fi-sidebar-item-button.fi-active,
 .fi-sidebar-item-button[aria-current="page"] {
-    background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%) !important;
-    color: #065f46 !important;
-    font-weight: 700 !important;
-    box-shadow: 0 1px 3px rgba(5, 150, 105, 0.15) !important;
+    background: rgba(255, 255, 255, 0.1) !important;
+    color: #f59e0b !important; /* Gold text */
+    font-weight: 800 !important;
+    border-left: 4px solid #f59e0b !important; /* Gold left accent line */
+    border-radius: 0 0.5rem 0.5rem 0 !important;
+    box-shadow: none !important;
+}
+
+.fi-sidebar-item-button svg {
+    color: rgba(255, 255, 255, 0.6) !important;
+    transition: color 0.2s ease !important;
+}
+
+.fi-sidebar-item-button:hover svg,
+.fi-sidebar-item-button.fi-active svg,
+.fi-sidebar-item-button[aria-current="page"] svg {
+    color: #f59e0b !important;
 }
 
 /* ── Top Bar ── */
@@ -111,22 +120,24 @@ body {
 
 /* ── Page Header ── */
 .fi-page-header {
-    background: linear-gradient(135deg, #065f46 0%, #059669 60%, #10b981 100%) !important;
+    background: #ffffff !important;
     border-radius: 1rem !important;
-    padding: 1.5rem 2rem !important;
+    padding: 1.25rem 1.75rem !important;
     margin-bottom: 1.5rem !important;
-    box-shadow: 0 4px 24px rgba(5, 150, 105, 0.2) !important;
+    border: 1px solid #e2e8f0 !important;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02) !important;
 }
 
 .fi-page-header h1,
 .fi-page-header .fi-page-heading {
-    color: #ffffff !important;
+    color: #022c22 !important; /* Dark green heading */
     font-weight: 800 !important;
     font-size: 1.5rem !important;
+    font-family: 'Plus Jakarta Sans', sans-serif !important;
 }
 
 .fi-page-header .fi-page-subheading {
-    color: rgba(255, 255, 255, 0.8) !important;
+    color: #64748b !important;
 }
 
 /* ── Stats Overview Widget ── */
@@ -243,17 +254,17 @@ body {
 
 /* ── Buttons ── */
 .fi-btn-primary {
-    background: linear-gradient(135deg, #059669 0%, #10b981 100%) !important;
+    background: #022c22 !important; /* Match dark green 'Edit: Homepage' button in mockup */
     border: none !important;
-    border-radius: 0.625rem !important;
+    border-radius: 0.5rem !important;
     font-weight: 700 !important;
-    box-shadow: 0 2px 8px rgba(5, 150, 105, 0.3) !important;
+    box-shadow: 0 2px 6px rgba(2, 44, 34, 0.15) !important;
     transition: all 0.2s ease !important;
 }
 
 .fi-btn-primary:hover {
-    background: linear-gradient(135deg, #047857 0%, #059669 100%) !important;
-    box-shadow: 0 4px 16px rgba(5, 150, 105, 0.4) !important;
+    background: #047857 !important;
+    box-shadow: 0 4px 12px rgba(4, 120, 87, 0.2) !important;
     transform: translateY(-1px) !important;
 }
 
@@ -412,18 +423,22 @@ body {
     border-top-color: transparent !important;
 }
 
-/* ── Hero gradient banner for dashboard ── */
+/* ── Hero banner for dashboard ── */
 .fi-page .fi-header {
-    background: linear-gradient(135deg, #065f46 0%, #059669 60%, #10b981 100%);
-    border-radius: 1rem;
-    padding: 1.5rem 2rem;
-    margin-bottom: 1.5rem;
-    box-shadow: 0 4px 24px rgba(5, 150, 105, 0.2);
+    background: #ffffff !important;
+    border-radius: 1rem !important;
+    padding: 1.25rem 1.75rem !important;
+    margin-bottom: 1.5rem !important;
+    border: 1px solid #e2e8f0 !important;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02) !important;
 }
 
 .fi-page .fi-header h1,
 .fi-page .fi-header-heading {
-    color: #ffffff !important;
+    color: #022c22 !important;
+    font-weight: 800 !important;
+    font-size: 1.5rem !important;
+    font-family: 'Plus Jakarta Sans', sans-serif !important;
 }
 
 /* ── Empty state ── */

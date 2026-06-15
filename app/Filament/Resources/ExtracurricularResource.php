@@ -10,6 +10,7 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use App\Helpers\MediaHelper;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
@@ -29,11 +30,16 @@ class ExtracurricularResource extends Resource
         return $form
             ->schema([
                 Forms\Components\TextInput::make('name')
+                    ->label('Nama Ekstrakurikuler')
                     ->required(),
                 Forms\Components\TextInput::make('stages')
+                    ->label('Jenjang (contoh: SDIT, MTS, MA)')
                     ->required(),
-                Forms\Components\TextInput::make('icon'),
-                Forms\Components\TextInput::make('color_classes'),
+                MediaHelper::imageUpload('icon', 'Foto Ekstrakurikuler', 'extracurricular', 'icon')
+                    ->columnSpanFull(),
+                Forms\Components\TextInput::make('color_classes')
+                    ->label('Kelas Warna (opsional)')
+                    ->placeholder('bg-orange-50 text-orange-700 border-orange-100'),
             ]);
     }
 
@@ -41,13 +47,19 @@ class ExtracurricularResource extends Resource
     {
         return $table
             ->columns([
+                Tables\Columns\ImageColumn::make('icon')
+                    ->label('Foto')
+                    ->circular(),
                 Tables\Columns\TextColumn::make('name')
-                    ->searchable(),
+                    ->label('Nama')
+                    ->searchable()
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('stages')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('icon')
-                    ->searchable(),
+                    ->label('Jenjang')
+                    ->searchable()
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('color_classes')
+                    ->label('Kelas Warna')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()

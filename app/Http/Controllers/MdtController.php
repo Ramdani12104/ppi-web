@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\MdtSetting;
+use App\Models\Teacher;
 use Illuminate\Http\Request;
 
 class MdtController extends Controller
@@ -14,6 +15,8 @@ class MdtController extends Controller
             ->latest()
             ->first();
 
-        return view('frontend.program.mdt', compact('mdt'));
+        $teachers = Teacher::where('stage', 'mdt')->orderBy('sort_order', 'asc')->get();
+
+        return view('frontend.program.mdt', compact('mdt', 'teachers'));
     }
 }

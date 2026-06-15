@@ -16,6 +16,13 @@ use App\Http\Controllers\KoberController;
 use App\Http\Controllers\RaController;
 use App\Http\Controllers\SditController;
 use App\Http\Controllers\MdtController;
+use App\Http\Controllers\TabunganUmrohController;
+use App\Http\Controllers\TabunganKurbanController;
+use App\Http\Controllers\KopontrenController;
+use App\Http\Controllers\KatalogSeragamController;
+use App\Http\Controllers\AlIttihadTravelController;
+use App\Http\Controllers\AlumniController;
+use App\Http\Controllers\GalleryController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -23,11 +30,12 @@ use Inertia\Inertia;
 Route::get('/', function () {
     return Inertia::render('LandingPage', [
         'news' => \App\Models\NewsPost::where('is_published', true)->latest('published_at')->take(4)->get(),
-        'testimonials' => \App\Models\Testimonial::latest('updated_at')->get(),
+        'testimonials' => \App\Models\Testimonial::latest()->get(),
         'programs' => \App\Models\Program::all(),
         'extracurriculars' => \App\Models\Extracurricular::all(),
         'settings' => \App\Models\Setting::pluck('value', 'key')->toArray(),
         'facilities' => \App\Models\Facility::all(),
+        'gallery' => \App\Models\Gallery::latest()->take(6)->get(),
     ]);
 });
 
@@ -44,6 +52,7 @@ Route::get('/profil/sejarah', [HistoryController::class, 'index'])->name('sejara
 Route::get('/profil/visi-misi', [VisiMisiController::class, 'index'])->name('visi-misi');
 Route::get('/profil/struktur', [StrukturController::class, 'index'])->name('struktur');
 Route::get('/profil/tokoh-pendiri', [TokohPendiriController::class, 'index'])->name('profil.tokoh-pendiri');
+Route::get('/profil/asatidz', [\App\Http\Controllers\AsatidzController::class, 'index'])->name('profil.asatidz');
 Route::get('/profil/sarana', [SaranaController::class, 'index'])->name('profil.sarana');
 Route::prefix('dukungan')->group(function () {
     Route::get('/', [\App\Http\Controllers\WakafController::class, 'index'])->name('dukungan.index');
@@ -57,6 +66,13 @@ Route::get('/program/sdit', [SditController::class, 'index'])->name('program.sdi
 Route::get('/program/mdt', [MdtController::class, 'index'])->name('program.mdt');
 Route::get('/program/ma', [MAController::class, 'index'])->name('ma');
 Route::get('/program/mts', [MTsController::class, 'index'])->name('mts');
+Route::get('/program/tabungan-umroh', [TabunganUmrohController::class, 'index'])->name('program.tabungan-umroh');
+Route::get('/program/tabungan-kurban', [TabunganKurbanController::class, 'index'])->name('program.tabungan-kurban');
+Route::get('/program/kopontren', [KopontrenController::class, 'index'])->name('program.kopontren');
+Route::get('/program/katalog-seragam', [KatalogSeragamController::class, 'index'])->name('program.katalog-seragam');
+Route::get('/program/al-ittihad-travel', [AlIttihadTravelController::class, 'index'])->name('program.al-ittihad-travel');
+Route::get('/program/alumni', [AlumniController::class, 'index'])->name('program.alumni');
+Route::get('/galeri', [GalleryController::class, 'index'])->name('gallery.index');
 
 Route::get('/dashboard', function () {
     return Inertia::render('Dashboard');

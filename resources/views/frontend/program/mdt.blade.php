@@ -266,6 +266,70 @@
     </section>
     @endif
 
+    <!-- SECTION: ASATIDZ & ASATIDZAH MDT -->
+    <section class="py-24 px-6 bg-white border-t border-b border-slate-100">
+        <div class="max-w-7xl mx-auto">
+            <div class="mb-16 text-center flex flex-col items-center">
+                <div class="flex items-center gap-4 mb-4 justify-center">
+                    <div class="w-12 h-1 bg-[#2c3e38]"></div>
+                    <h2 class="text-3xl md:text-4xl font-black text-[#2c3e38] uppercase tracking-tight">Asatidz & Asatidzah MDT</h2>
+                    <div class="w-12 h-1 bg-[#2c3e38]"></div>
+                </div>
+                <p class="text-slate-500 font-medium max-w-2xl">
+                    Tenaga pendidik profesional tingkat Madrasah Diniyah Takmiliyah yang berdedikasi membimbing keislaman dan akhlak santri.
+                </p>
+            </div>
+
+            @if($teachers->isEmpty())
+                <div class="text-center py-12 bg-slate-50 rounded-3xl shadow-sm border border-slate-100 max-w-lg mx-auto">
+                    <span class="text-5xl block mb-4">👥</span>
+                    <h3 class="text-lg font-bold text-slate-700 mb-2">Data Belum Tersedia</h3>
+                    <p class="text-slate-500 text-sm">Data tenaga pendidik tingkat MDT sedang disiapkan.</p>
+                </div>
+            @else
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    @foreach($teachers as $teacher)
+                        <div class="group bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500 border border-slate-100 flex flex-col h-full transform hover:-translate-y-2">
+                            <!-- Top Accent and Photo container -->
+                            <div class="h-40 relative overflow-hidden flex items-center justify-center">
+                                @if($teacher->photo)
+                                    <img src="{{ asset('storage/' . $teacher->photo) }}" alt="{{ $teacher->name }}" class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
+                                    <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
+                                @else
+                                    <div class="absolute inset-0 bg-gradient-to-br from-[#2c3e38] to-[#1e2b27]"></div>
+                                    <div class="absolute inset-0 opacity-10" style="background-image: radial-gradient(#ffffff 1px, transparent 1px); background-size: 20px 20px;"></div>
+                                    <!-- Circular Initial Fallback in center when no photo -->
+                                    <div class="relative z-10 w-20 h-20 rounded-full border-4 border-white bg-white shadow-md overflow-hidden flex items-center justify-center text-[#2c3e38] font-bold text-3xl">
+                                        {{ substr($teacher->name, 0, 1) }}
+                                    </div>
+                                @endif
+                            </div>
+
+                            <!-- Details -->
+                            <div class="p-6 flex-1 flex flex-col text-center">
+                                <h3 class="text-xl font-bold text-slate-800 mb-1 tracking-tight">
+                                    {{ $teacher->name }}
+                                </h3>
+                                <span class="inline-block px-3 py-1 bg-emerald-50 text-[#2c3e38] text-[10px] font-black uppercase tracking-wider rounded-full border border-emerald-100 mb-4 mx-auto">
+                                    {{ $teacher->role }}
+                                </span>
+
+                                <div class="text-left flex-1 flex flex-col">
+                                    <h4 class="text-[10px] font-black uppercase tracking-wider text-amber-600 mb-1.5 border-b border-slate-50 pb-1 flex items-center gap-1">
+                                        <span>📝</span> Mengajar / Tugas
+                                    </h4>
+                                    <p class="text-slate-650 leading-relaxed text-xs flex-1">
+                                        {{ $teacher->tasks ?? 'Membimbing mata pelajaran kepesantrenan dan diniyah tingkat MDT.' }}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            @endif
+        </div>
+    </section>
+
     <!-- 7. CTA PENUTUP -->
     @if($mdt->is_active_cta ?? true)
     <section id="daftar" class="py-24 px-6 bg-white relative">

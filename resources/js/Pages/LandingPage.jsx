@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link } from '@inertiajs/react';
 
 // Import Assets
@@ -6,10 +6,29 @@ import hero1 from "./assets/hero1.jfif";
 import hero2 from "./assets/hero2.jfif";
 import hero3 from "./assets/hero3.jfif";
 
-export default function LandingPage({ news, testimonials, programs, extracurriculars, settings }) {
+export default function LandingPage({ news, testimonials, programs, extracurriculars, settings, facilities, gallery }) {
   const [slide, setSlide] = useState(0);
   const [isScrolled, setIsScrolled] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState(null);
+  
+  const fallbackTestimonials = [
+    { id: 1, name: "H. Ahmad Fauzi", status: "Wali Santri MA", quote: "Perubahan adab anak saya sangat terasa. Sekarang jauh lebih mandiri dan ibadahnya lebih terjaga. Terima kasih PPI 104.", type: "Orang Tua", avatar: null },
+    { id: 2, name: "Ibu Siti Rohmah", status: "Wali Santri MTs", quote: "Sangat bersyukur menyekolahkan anak di sini. Lingkungannya sangat kekeluargaan dan gurunya sangat peduli pada tiap santri.", type: "Orang Tua", avatar: null },
+    { id: 3, name: "Ustadz Lukman Hakim", status: "Alumni 2018 - Mahasiswa Al-Azhar Mesir", quote: "Bekal bahasa Arab dan hafalan Qur'an dari PPI 104 menjadi kunci utama saya bisa melanjutkan studi ke Timur Tengah dengan lancar.", type: "Alumni", avatar: null },
+    { id: 4, name: "Dr. Wildan Fauzi", status: "Alumni 2012 - Praktisi Kesehatan", quote: "Pelajaran tentang kedisiplinan dan amanah di pesantren sangat membantu saya dalam menjalani profesi saya sekarang sebagai dokter.", type: "Alumni", avatar: null }
+  ];
+  
+  const listTestimonials = testimonials && testimonials.length > 0 ? testimonials : fallbackTestimonials;
+  const [activeTestimonial, setActiveTestimonial] = useState(listTestimonials[0] || null);
+  const sliderRef = useRef(null);
+
+  useEffect(() => {
+    if (listTestimonials.length > 0) {
+      if (!activeTestimonial || !listTestimonials.some(t => t.id === activeTestimonial.id)) {
+        setActiveTestimonial(listTestimonials[0]);
+      }
+    }
+  }, [listTestimonials]);
   
   // Helper to resolve images (supports absolute paths, public storage paths, and imported assets)
   const resolveImage = (path, fallback) => {
@@ -30,12 +49,25 @@ export default function LandingPage({ news, testimonials, programs, extracurricu
       : url;
   };
 
-  // Parsing JSON Settings with Fallbacks
-  let sliderItems = [];
-  try {
-    sliderItems = settings?.landing_slider_items ? JSON.parse(settings.landing_slider_items) : [];
-  } catch (e) {
-    console.error("Failed to parse landing_slider_items", e);
+  // Resolve individual slider background images with fallbacks
+  const activeSliderImages = [];
+  if (settings?.slider_image_1) activeSliderImages.push(settings.slider_image_1);
+  if (settings?.slider_image_2) activeSliderImages.push(settings.slider_image_2);
+  if (settings?.slider_image_3) activeSliderImages.push(settings.slider_image_3);
+
+  // Fallback to legacy slider_images if no new individual images exist
+  if (activeSliderImages.length === 0) {
+    let legacyImages = [];
+    try {
+      legacyImages = settings?.slider_images ? JSON.parse(settings.slider_images) : [];
+    } catch (e) {
+      console.error("Failed to parse legacy slider_images", e);
+    }
+    if (legacyImages.length > 0) {
+      activeSliderImages.push(...legacyImages);
+    } else {
+      activeSliderImages.push(hero1, hero2, hero3);
+    }
   }
 
   let statsCards = [];
@@ -66,12 +98,7 @@ export default function LandingPage({ news, testimonials, programs, extracurricu
     console.error("Failed to parse landing_programs_cards", e);
   }
 
-  let galleryItems = [];
-  try {
-    galleryItems = settings?.landing_gallery_items ? JSON.parse(settings.landing_gallery_items) : [];
-  } catch (e) {
-    console.error("Failed to parse landing_gallery_items", e);
-  }
+  // Gallery items settings parsing removed - now loaded via model prop
 
   let historyTimeline = [];
   try {
@@ -81,23 +108,6 @@ export default function LandingPage({ news, testimonials, programs, extracurricu
   }
 
   // Fallbacks for empty states
-  const activeSliderItems = sliderItems.length > 0 ? sliderItems : [
-    {
-      title: 'Selamat Datang di Al-Ittihad',
-      description: 'Mewujudkan generasi berakhlak mulia dan berwawasan luas sesuai Al-Qur\'an dan As-Sunnah.',
-      image: '',
-      button_text: 'Pelajari Selengkapnya',
-      button_link: '/profil/sejarah',
-    },
-    {
-      title: 'Penerimaan Santri Baru',
-      description: 'Tahun Ajaran 2026/2027 telah dibuka. Segera bergabung bersama keluarga besar kami.',
-      image: '',
-      button_text: 'Daftar Sekarang',
-      button_link: '/kontak',
-    }
-  ];
-
   const activeStatsCards = statsCards.length > 0 ? statsCards : [
     { icon: '👥', number: '1200', label: 'Total Santri Aktif' },
     { icon: '👨‍🏫', number: '65', label: 'Asatidz & Asatidzah' },
@@ -144,7 +154,7 @@ export default function LandingPage({ news, testimonials, programs, extracurricu
     { icon: '✨', title: 'Program Lainnya', desc: 'Berbagai kegiatan ekstrakurikuler dan pengembangan bakat yang akan terus bertambah sesuai kebutuhan santri.', color_gradient: 'from-purple-500 to-purple-700', link: '#' }
   ];
 
-  const activeGalleryItems = galleryItems.length > 0 ? galleryItems : [
+  const activeGalleryItems = gallery && gallery.length > 0 ? gallery : [
     { image: '', title: 'KBM Kelas Tafsir', desc: 'Kegiatan belajar mengajar pendalaman kitab tafsir.' },
     { image: '', title: 'Latihan Brigade Santri', desc: 'Latihan kedisiplinan dan kepanduan rutin.' },
     { image: '', title: 'Pembiasaan Dzikir Pagi', desc: 'Dzikir pagi bersama di asrama.' }
@@ -159,12 +169,12 @@ export default function LandingPage({ news, testimonials, programs, extracurricu
 
   // Auto transition for slide
   useEffect(() => {
-    if (activeSliderItems.length <= 1) return;
+    if (activeSliderImages.length <= 1) return;
     const timer = setInterval(() => {
-      setSlide((prev) => (prev === activeSliderItems.length - 1 ? 0 : prev + 1));
+      setSlide((prev) => (prev === activeSliderImages.length - 1 ? 0 : prev + 1));
     }, 5000);
     return () => clearInterval(timer);
-  }, [activeSliderItems.length]);
+  }, [activeSliderImages.length]);
 
   // Navbar glassmorphism effect
   useEffect(() => {
@@ -181,8 +191,31 @@ export default function LandingPage({ news, testimonials, programs, extracurricu
 
   const welcomeVideoEmbed = getYoutubeEmbedUrl(settings?.landing_welcome_video);
 
+  const logoHeight = parseInt(settings?.logo_height) || 80;
+  const logoHeightMobile = Math.round(logoHeight * 0.8);
+
+  const footerLogo = settings?.footer_logo || settings?.logo_website || null;
+  const footerLogoHeight = parseInt(settings?.footer_logo_height) || 60;
+
   return (
     <div className="font-sans antialiased bg-[#FDFDFD] text-slate-700 flex flex-col min-h-screen w-full overflow-x-hidden">
+      <style>{`
+        .logo-custom-size {
+          height: ${logoHeightMobile}px !important;
+        }
+        @media (min-width: 768px) {
+          .logo-custom-size {
+            height: ${logoHeight}px !important;
+          }
+        }
+        .scrollbar-none::-webkit-scrollbar {
+          display: none;
+        }
+        .scrollbar-none {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+        }
+      `}</style>
 
       {/* --- NAVBAR --- */}
       <nav 
@@ -194,37 +227,37 @@ export default function LandingPage({ news, testimonials, programs, extracurricu
           {/* Logo Branding */}
           <div className="flex items-center gap-4 shrink-0">
             {settings?.logo_website ? (
-              <img src={resolveImage(settings.logo_website, null)} alt="Logo" className="w-16 h-16 object-contain rounded-2xl shadow-lg border-2 border-emerald-500 bg-white" />
+              <img src={resolveImage(settings.logo_website, null)} alt="Logo" className="logo-custom-size w-auto object-contain" />
             ) : (
-              <div className="bg-emerald-800 text-white w-16 h-16 flex items-center justify-center rounded-2xl font-black text-3xl shadow-lg border-2 border-emerald-500">
-                104
-              </div>
+              <>
+                <div className="bg-emerald-800 text-white w-16 h-16 flex items-center justify-center rounded-2xl font-black text-3xl shadow-lg border-2 border-emerald-500">
+                  104
+                </div>
+                <div className="flex flex-col text-left border-l-2 border-slate-200 pl-4">
+                  <span className="text-[11px] font-black tracking-[0.2em] text-emerald-800 leading-tight uppercase">{settings?.header_title || 'Pesantren Persatuan Islam 104'}</span>
+                  <span className="text-2xl font-black text-slate-800 leading-none uppercase tracking-tighter">{settings?.header_subtitle || 'Al-Ittihad Cikajang'}</span>
+                  <span className="text-[10px] font-bold text-slate-400 mt-1 uppercase tracking-widest italic">{settings?.header_tagline || 'Melayani Masyarakat Menuju Ridho Allah'}</span>
+                </div>
+              </>
             )}
-            <div className="flex flex-col text-left border-l-2 border-slate-200 pl-4">
-              <span className="text-[11px] font-black tracking-[0.2em] text-emerald-800 leading-tight uppercase">{settings?.header_title || 'Pesantren Persatuan Islam 104'}</span>
-              <span className="text-2xl font-black text-slate-800 leading-none uppercase tracking-tighter">{settings?.header_subtitle || 'Al-Ittihad Cikajang'}</span>
-              <span className="text-[10px] font-bold text-slate-400 mt-1 uppercase tracking-widest italic">{settings?.header_tagline || 'Melayani Masyarakat Menuju Ridho Allah'}</span>
-            </div>
           </div>
 
           {/* Menus */}
-          <div className="hidden lg:flex items-center gap-1">
+          <div className="hidden lg:flex items-center gap-6">
             {[
-              { n: 'Beranda', i: '🏠', d: 'Selamat Datang', link: '/' },
-              { n: 'Profil', i: '🏢', d: 'Pesantren', drop: ['Sejarah', 'Tokoh Pendiri', 'Visi & Misi', 'Struktur', 'Sarana'] },
-              { n: 'Program', i: '📚', d: 'Pendidikan', drop: ['KOBER', 'RA', 'SDIT', 'MDT', 'MTS', 'MA'] },
-              { n: 'Dukungan', i: '🤝', d: 'Pendidikan', drop: ['Wakaf Pendidikan', 'Pembangunan Sarana', 'Beasiswa Santri'] },
-              { n: 'Berita', i: '📰', d: 'Informasi', link: '/berita' },
-              { n: 'Kontak', i: '📞', d: 'Hubungi Kami', link: '/kontak' }
+              { n: 'Beranda', link: '/' },
+              { n: 'Profil', drop: ['Sejarah', 'Tokoh Pendiri', 'Visi & Misi', 'Struktur', 'Sarana'] },
+              { n: 'Program', drop: ['KOBER', 'RA', 'SDIT', 'MDT', 'MTS', 'MA'] },
+              { n: 'Program Pesantren', drop: ['Wakaf Pendidikan', 'Pembangunan Sarana', 'Beasiswa Santri', 'Tabungan Umroh', 'Tabungan Kurban', 'Kopontren'] },
+              { n: 'Berita', link: '/berita' },
+              { n: 'Kontak', link: '/kontak' }
             ].map((item) => {
               const innerContent = (
-                <div className="flex flex-col items-center">
-                  <span className="text-xl mb-1">{item.i}</span>
-                  <span className="text-[12px] font-black uppercase text-emerald-800 leading-none">{item.n}</span>
-                  <span className="text-[8px] font-bold text-slate-400 leading-none mt-1.5 whitespace-nowrap">{item.d}</span>
+                <div className="flex items-center gap-1.5 py-4">
+                  <span className="text-[13px] font-black uppercase tracking-wider text-slate-700 group-hover:text-emerald-700 transition-colors">{item.n}</span>
                   {item.drop && (
-                    <svg className="w-3 h-3 text-emerald-600 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"/>
+                    <svg className="w-3.5 h-3.5 text-slate-400 group-hover:text-emerald-700 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 9l-7 7-7-7"/>
                     </svg>
                   )}
                 </div>
@@ -232,7 +265,7 @@ export default function LandingPage({ news, testimonials, programs, extracurricu
 
               if (item.link) {
                 return (
-                  <a href={item.link} key={item.n} className="relative group px-4 py-2 hover:bg-emerald-50 rounded-2xl transition-all cursor-pointer text-center min-w-100px">
+                  <a href={item.link} key={item.n} className="relative group transition-all cursor-pointer">
                     {innerContent}
                   </a>
                 );
@@ -241,7 +274,7 @@ export default function LandingPage({ news, testimonials, programs, extracurricu
               return (
                 <div 
                   key={item.n} 
-                  className="relative group px-4 py-2 hover:bg-emerald-50 rounded-2xl transition-all cursor-pointer text-center min-w-100px"
+                  className="relative group transition-all cursor-pointer"
                   onClick={() => item.drop && setActiveDropdown(activeDropdown === item.n ? null : item.n)}
                   onMouseEnter={() => item.drop && setActiveDropdown(item.n)}
                   onMouseLeave={() => setActiveDropdown(null)}
@@ -250,15 +283,16 @@ export default function LandingPage({ news, testimonials, programs, extracurricu
 
                   {item.drop && (
                     <div 
-                      className={`absolute left-0 right-0 top-full pt-2 ${activeDropdown === item.n ? 'block' : 'hidden'}`}
+                      className={`absolute left-0 right-0 top-full pt-1 ${activeDropdown === item.n ? 'block' : 'hidden'}`}
                       style={{ position: 'absolute', zIndex: 99999 }}
+                      onClick={(e) => e.stopPropagation()}
                     >
                       <div className="absolute left-1/2 -translate-x-1/2 w-56">
-                        <div className="bg-white shadow-[0_20px_50px_rgba(0,0,0,0.2)] rounded-2xl border-t-4 border-emerald-700 overflow-hidden flex flex-col p-2">
+                        <div className="bg-white shadow-[0_20px_50px_rgba(0,0,0,0.15)] rounded-2xl border-t-4 border-emerald-700 overflow-hidden flex flex-col p-2">
                           {item.drop.map((sub) => (
                             <a
                               key={sub}
-                              href={sub === 'Sejarah' ? '/profil/sejarah' : sub === 'Visi & Misi' ? '/profil/visi-misi' : sub === 'Struktur' ? '/profil/struktur' : sub === 'Tokoh Pendiri' ? '/profil/tokoh-pendiri' : sub === 'Sarana' || sub === 'Sarana & Prasarana' ? '/profil/sarana' : sub === 'KOBER' ? '/program/kober' : sub === 'RA' ? '/program/ra' : sub === 'SDIT' ? '/program/sdit' : sub === 'MDT' ? '/program/mdt' : sub === 'MTS' ? '/program/mts' : sub === 'MA' ? '/program/ma' : sub === 'Berita & Pengumuman' || sub === 'Berita' ? '/berita' : sub === 'Wakaf Pendidikan' ? '/dukungan' : sub === 'Pembangunan Sarana' ? '/dukungan/pembangunan' : sub === 'Beasiswa Santri' ? '/dukungan/beasiswa' : '#'}
+                              href={sub === 'Sejarah' ? '/profil/sejarah' : sub === 'Visi & Misi' ? '/profil/visi-misi' : sub === 'Struktur' ? '/profil/struktur' : sub === 'Tokoh Pendiri' ? '/profil/tokoh-pendiri' : sub === 'Sarana' || sub === 'Sarana & Prasarana' ? '/profil/sarana' : sub === 'KOBER' ? '/program/kober' : sub === 'RA' ? '/program/ra' : sub === 'SDIT' ? '/program/sdit' : sub === 'MDT' ? '/program/mdt' : sub === 'MTS' ? '/program/mts' : sub === 'MA' ? '/program/ma' : sub === 'Berita & Pengumuman' || sub === 'Berita' ? '/berita' : sub === 'Wakaf Pendidikan' ? '/dukungan' : sub === 'Pembangunan Sarana' ? '/dukungan/pembangunan' : sub === 'Beasiswa Santri' ? '/dukungan/beasiswa' : sub === 'Tabungan Umroh' ? '/program/tabungan-umroh' : sub === 'Tabungan Kurban' ? '/program/tabungan-kurban' : sub === 'Kopontren' ? '/program/kopontren' : '#'}
                               className="px-5 py-3 text-[10px] font-bold text-slate-600 hover:bg-emerald-700 hover:text-white rounded-xl transition-all uppercase text-left block relative z-10 pointer-events-auto"
                             >
                               {sub}
@@ -273,15 +307,13 @@ export default function LandingPage({ news, testimonials, programs, extracurricu
             })}
 
             {/* PSB Link & Contact Icon */}
-            <div className="ml-4 flex items-center gap-4 border-l-2 border-slate-100 pl-6">
-              <a href="/kontak" className="flex flex-col items-center group bg-emerald-50 px-4 py-2 rounded-2xl border border-emerald-100 transition-all hover:bg-emerald-100">
-                <span className="text-xl">📝</span>
-                <span className="text-[12px] font-black text-emerald-800 uppercase">PSB</span>
-                <span className="text-[9px] font-bold text-emerald-600/60 leading-none uppercase">26/27</span>
+            <div className="ml-4 flex items-center gap-4 border-l border-slate-200 pl-6">
+              <a href="/kontak" className="bg-emerald-50 hover:bg-emerald-100 text-emerald-800 px-4.5 py-2 rounded-xl text-[12px] font-black uppercase tracking-wider transition-all border border-emerald-100 flex items-center justify-center">
+                PSB 26/27
               </a>
               
-              <a href={`https://wa.me/${(settings?.landing_contact_phone || '083822099034').replace(/[^0-9]/g, '')}`} target="_blank" rel="noopener noreferrer" className="bg-[#25D366] text-white p-4 rounded-2xl shadow-xl transition-all hover:scale-105">
-                <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.246 2.248 3.484 5.232 3.484 8.412-.003 6.557-5.338 11.892-11.893 11.892-1.942-.001-3.841-.48-5.538-1.391l-6.459 1.693zM6.612 19.864l.363.216c1.332.793 2.859 1.212 4.423 1.213 4.795 0 8.692-3.896 8.695-8.693.001-2.323-.902-4.506-2.543-6.148-1.641-1.641-3.824-2.545-6.15-2.545-4.796 0-8.692 3.897-8.695 8.695 0 1.579.423 3.116 1.22 4.453l.237.394-1.002 3.654 3.743-.982z" /></svg>
+              <a href={`https://wa.me/${(settings?.landing_contact_phone || '083822099034').replace(/[^0-9]/g, '')}`} target="_blank" rel="noopener noreferrer" className="bg-[#25D366] text-white p-3 rounded-xl shadow-md transition-all hover:scale-105">
+                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.246 2.248 3.484 5.232 3.484 8.412-.003 6.557-5.338 11.892-11.893 11.892-1.942-.001-3.841-.48-5.538-1.391l-6.459 1.693zM6.612 19.864l.363.216c1.332.793 2.859 1.212 4.423 1.213 4.795 0 8.692-3.896 8.695-8.693.001-2.323-.902-4.506-2.543-6.148-1.641-1.641-3.824-2.545-6.15-2.545-4.796 0-8.692 3.897-8.695 8.695 0 1.579.423 3.116 1.22 4.453l.237.394-1.002 3.654 3.743-.982z" /></svg>
               </a>
             </div>
           </div>
@@ -291,56 +323,86 @@ export default function LandingPage({ news, testimonials, programs, extracurricu
       <div className="h-28"></div>
 
       {/* ── 1. HERO & SLIDER SECTION ── */}
-      {settings?.landing_slider_items && sliderItems.length > 0 ? (
-        // RENDER SLIDER LANDING
-        <section className="relative h-screen min-h-700px w-full flex items-center justify-center overflow-hidden">
-          <div className="absolute inset-0">
-            {activeSliderItems.map((s, index) => {
-              const bgImg = resolveImage(s.image, index === 0 ? hero1 : index === 1 ? hero2 : hero3);
-              return (
-                <div
-                  key={index}
-                  className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
-                    slide === index ? "opacity-100" : "opacity-0"
-                  }`}
-                >
-                  <img 
-                    src={bgImg} 
-                    className="w-full h-full object-cover" 
-                    alt={s.title} 
-                    onError={(e) => { e.target.src = "https://picsum.photos/1920/1080"; }}
-                  />
-                  <div className="absolute inset-0 bg-black/60 backdrop-blur-[1px]"></div>
-                </div>
-              );
-            })}
-          </div>
-
-          <div className="relative z-10 max-w-5xl px-6 text-center text-white">
-            {activeSliderItems.map((s, index) => (
-              <div key={index} className={slide === index ? "block animate-fade-in" : "hidden"}>
-                <h1 className="text-4xl md:text-6xl font-black tracking-tighter uppercase leading-tight mb-6">
-                  {s.title}
-                </h1>
-                <p className="text-sm md:text-lg text-emerald-50/90 max-w-3xl mx-auto font-medium leading-relaxed italic border-t border-b border-white/20 py-4 mb-12">
-                  {s.description}
-                </p>
-                {s.button_text && (
-                  <div className="flex justify-center">
-                    <a 
-                      href={s.button_link || '#'}
-                      className="bg-emerald-600 hover:bg-emerald-500 text-white px-12 py-4 rounded-2xl font-black text-sm uppercase tracking-[0.2em] shadow-2xl transition-all hover:scale-105 active:scale-95 border-b-4 border-emerald-800 inline-block"
-                    >
-                      {s.button_text}
-                    </a>
-                  </div>
-                )}
+      <section className="relative h-screen min-h-700px w-full flex items-center justify-center overflow-hidden">
+        {/* Background images that slide */}
+        <div className="absolute inset-0">
+          {activeSliderImages.map((img, index) => {
+            const bgImg = resolveImage(img, index === 0 ? hero1 : index === 1 ? hero2 : hero3);
+            return (
+              <div
+                key={index}
+                className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
+                  slide === index ? "opacity-100" : "opacity-0"
+                }`}
+              >
+                <img 
+                  src={bgImg} 
+                  className="w-full h-full object-cover" 
+                  alt={`Slide ${index + 1}`} 
+                  onError={(e) => { e.target.src = "https://picsum.photos/1920/1080"; }}
+                />
+                <div className={`absolute inset-0 ${settings?.overlay_opacity || 'bg-black/60'} backdrop-blur-[1px]`}></div>
               </div>
-            ))}
-          </div>
+            );
+          })}
+        </div>
 
+        {/* Content on top */}
+        {(() => {
+          const positionClass = settings?.text_position || 'items-center text-center';
+          const isLeft = positionClass.includes('text-left');
+          const isRight = positionClass.includes('text-right');
+          const fontSizeClass = settings?.title_font_size || 'text-4xl md:text-6xl';
+
+          let contentContainerClass = "max-w-7xl mx-auto px-6 h-full flex flex-col justify-center relative z-10 w-full ";
+          if (isLeft) {
+            contentContainerClass += "items-start text-left md:pl-16 lg:pl-28";
+          } else if (isRight) {
+            contentContainerClass += "items-end text-right md:pr-16 lg:pr-28";
+          } else {
+            contentContainerClass += "items-center text-center";
+          }
+
+          return (
+            <div className={contentContainerClass}>
+              {/* Tulisan Kecil */}
+              {settings?.slider_small_text && (
+                <span className="text-emerald-400 font-bold tracking-[0.2em] text-[10px] md:text-xs uppercase bg-emerald-950/60 border border-emerald-500/30 px-5 py-1.5 rounded-full mb-6 block animate-fade-in w-fit">
+                  {settings.slider_small_text}
+                </span>
+              )}
+
+              {/* Judul Besar */}
+              <h1 className={`${fontSizeClass} font-black tracking-tight uppercase leading-tight mb-6 max-w-4xl text-white drop-shadow-md animate-fade-in`}>
+                {settings?.slider_title || 'Membentuk Generasi Robbani, Beradab, dan Berprestasi'}
+              </h1>
+
+              {/* Sedikit Keterangan */}
+              {settings?.slider_description && (
+                <p className="text-xs md:text-base text-emerald-50/90 max-w-3xl font-medium leading-relaxed border-t border-b border-white/20 py-4 mb-10 animate-fade-in">
+                  {settings.slider_description}
+                </p>
+              )}
+              
+              {/* CTA Button */}
+              {settings?.slider_button_text && (
+                <div className="flex animate-fade-in">
+                  <a 
+                    href={settings?.slider_button_link || '/profil/sejarah'}
+                    className="bg-emerald-600 hover:bg-emerald-500 text-white px-10 py-3.5 rounded-2xl font-black text-xs uppercase tracking-[0.2em] shadow-2xl transition-all hover:scale-105 active:scale-95 border-b-4 border-emerald-800 inline-block"
+                  >
+                    {settings.slider_button_text}
+                  </a>
+                </div>
+              )}
+            </div>
+          );
+        })()}
+
+        {/* Dots indicators */}
+        {activeSliderImages.length > 1 && (
           <div className="absolute bottom-10 left-1/2 -translate-x-1/2 z-20 flex gap-3">
-            {activeSliderItems.map((_, i) => (
+            {activeSliderImages.map((_, i) => (
               <button 
                 key={i} 
                 onClick={() => setSlide(i)}
@@ -348,51 +410,8 @@ export default function LandingPage({ news, testimonials, programs, extracurricu
               />
             ))}
           </div>
-        </section>
-      ) : (
-        // FALLBACK TO STATIC HERO SECTION
-        <section className="relative h-screen min-h-700px w-full flex items-center justify-center overflow-hidden">
-          <div className="absolute inset-0">
-            <picture>
-              <source media="(max-width: 640px)" srcSet={resolveImage(settings?.landing_hero_image_mobile, resolveImage(settings?.landing_hero_image, hero1))} />
-              <img 
-                src={resolveImage(settings?.landing_hero_image, hero1)} 
-                className="w-full h-full object-cover" 
-                alt="Hero Background"
-                onError={(e) => { e.target.src = "https://picsum.photos/1920/1080"; }}
-              />
-            </picture>
-            <div className="absolute inset-0 bg-black/60 backdrop-blur-[1px]"></div>
-          </div>
-
-          <div className="relative z-10 max-w-5xl px-6 text-center text-white flex flex-col items-center">
-            {/* Hero Kecil */}
-            <span className="text-emerald-400 font-bold tracking-[0.2em] text-xs md:text-sm uppercase bg-emerald-950/50 border border-emerald-500/30 px-6 py-2 rounded-full mb-6 block">
-              {settings?.landing_hero_small || 'Pesantren Persatuan Islam 104 Al-Ittihad Cikajang'}
-            </span>
-
-            {/* Hero Utama */}
-            <h1 className="text-4xl md:text-6xl font-black tracking-tighter uppercase leading-tight mb-6 max-w-4xl">
-              {settings?.landing_hero_title || 'Membentuk Generasi Robbani, Beradab, dan Berprestasi'}
-            </h1>
-
-            {/* Sub Hero */}
-            <p className="text-sm md:text-lg text-emerald-50/90 max-w-3xl mx-auto font-medium leading-relaxed italic border-t border-b border-white/20 py-4 mb-12">
-              {settings?.landing_hero_subtitle || 'Pendidikan terpadu berlandaskan Al-Qur\'an dan As-Sunnah untuk melahirkan kader ulama yang mutafaqqih fiddin.'}
-            </p>
-            
-            {/* CTA Button */}
-            <div className="flex justify-center">
-              <a 
-                href={settings?.landing_hero_cta_link || '/'}
-                className="bg-emerald-600 hover:bg-emerald-500 text-white px-12 py-4 rounded-2xl font-black text-sm uppercase tracking-[0.2em] shadow-2xl transition-all hover:scale-105 active:scale-95 border-b-4 border-emerald-800 inline-block"
-              >
-                {settings?.landing_hero_cta_text || 'Daftar Online'}
-              </a>
-            </div>
-          </div>
-        </section>
-      )}
+        )}
+      </section>
 
       {/* ── 2. AHLAN WA SAHLAN (SAMBUTAN & MENGENAL KAMI - 2 KOLOM VIDEO + TEKS) ── */}
       <section className="py-24 px-6 bg-white flex justify-center w-full">
@@ -577,7 +596,7 @@ export default function LandingPage({ news, testimonials, programs, extracurricu
       </section>
 
       {/* ── 6. PROGRAM UNGGULAN ── */}
-      <section className="py-24 bg-slate-50">
+      <section id="program-pesantren" className="py-24 bg-slate-50">
         <div className="max-w-7xl mx-auto px-6">
           <div className="mb-16 text-center flex flex-col items-center">
             <div className="flex items-center gap-3 mb-4 justify-center">
@@ -642,13 +661,47 @@ export default function LandingPage({ news, testimonials, programs, extracurricu
               { nama: "Olahraga", jenjang: "Semua Jenjang", icon: "⚽", color: "bg-blue-50 text-blue-700 border-blue-100" },
               { nama: "Seni & Kaligrafi", jenjang: "MDT, MTS, MA", icon: "🎨", color: "bg-purple-50 text-purple-700 border-purple-100" },
               { nama: "Hadroh", jenjang: "MTS, MA", icon: "🥁", color: "bg-emerald-50 text-emerald-700 border-emerald-100" }
-            ]).map((eskul, i) => (
-              <div key={i} className={`p-8 rounded-3xl border ${eskul.color} transition-all hover:shadow-xl hover:-translate-y-2 group flex flex-col items-center text-center`}>
-                <div className="text-5xl mb-5 group-hover:scale-110 transition-transform">{eskul.icon}</div>
-                <h4 className="text-xl font-bold mb-1">{eskul.nama}</h4>
-                <p className="text-[10px] font-bold uppercase tracking-widest opacity-60">{eskul.jenjang}</p>
-              </div>
-            ))}
+            ]).map((eskul, i) => {
+              const isImagePath = eskul.icon && (eskul.icon.includes('/') || eskul.icon.includes('.'));
+              let bgClass = 'bg-[#064e3b]';
+              if (eskul.color && eskul.color.includes('orange')) {
+                bgClass = 'bg-[#ea580c]';
+              } else if (eskul.color && eskul.color.includes('blue')) {
+                bgClass = 'bg-[#1d4ed8]';
+              } else if (eskul.color && eskul.color.includes('purple')) {
+                bgClass = 'bg-[#6d28d9]';
+              } else if (eskul.color && eskul.color.includes('emerald')) {
+                bgClass = 'bg-[#047857]';
+              }
+              return (
+                <div key={i} className="relative overflow-hidden aspect-[4/5] rounded-[2rem] transition-all duration-500 hover:shadow-2xl hover:-translate-y-2 group flex flex-col justify-end p-6 text-center cursor-pointer shadow-md border border-slate-100">
+                  {isImagePath ? (
+                    <>
+                      <img src={`/storage/${eskul.icon}`} alt={eskul.nama} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 z-0" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/45 to-transparent z-10"></div>
+                    </>
+                  ) : (
+                    <>
+                      <div className={`absolute inset-0 ${bgClass} z-0 opacity-90`}></div>
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent z-10"></div>
+                    </>
+                  )}
+                  <div className="relative z-20 flex flex-col items-center">
+                    {!isImagePath && (
+                      <div className="w-16 h-16 rounded-2xl bg-white/10 backdrop-blur-md flex items-center justify-center mb-4 border border-white/20 text-3xl group-hover:scale-110 transition-transform">
+                        {eskul.icon || "🏆"}
+                      </div>
+                    )}
+                    <h4 className="text-lg md:text-xl font-black uppercase tracking-tight text-white mb-1.5 leading-snug drop-shadow-md">
+                      {eskul.nama}
+                    </h4>
+                    <p className="text-[10px] font-black uppercase tracking-widest text-emerald-100 drop-shadow-sm opacity-90">
+                      {eskul.jenjang}
+                    </p>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
       </section>
@@ -661,19 +714,45 @@ export default function LandingPage({ news, testimonials, programs, extracurricu
             <h2 className="text-4xl font-bold text-slate-900">Fasilitas Pesantren</h2>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {[
+            {(facilities && facilities.length > 0 ? facilities.map((fasil) => ({
+              nama: fasil.name,
+              icon: fasil.icon,
+              desc: fasil.description
+            })) : [
               { nama: "Masjid Putra & Putri", icon: "🕌", desc: "Sarana ibadah luas dan terpisah." },
               { nama: "Asrama Nyaman", icon: "🏠", desc: "Hunian bersih dengan pengawasan asatidz." },
               { nama: "Ruang Kelas", icon: "🏫", desc: "Ruang belajar representatif & modern." }
-            ].map((fasil, i) => (
-              <div key={i} className="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm hover:shadow-md transition-all group flex flex-col items-center">
-                <div className="w-16 h-16 bg-emerald-50 rounded-2xl flex items-center justify-center text-3xl mb-6 group-hover:bg-emerald-600 group-hover:text-white transition-all">
-                  {fasil.icon}
+            ]).map((fasil, i) => {
+              const isImagePath = fasil.icon && (fasil.icon.includes('/') || fasil.icon.includes('.'));
+              return (
+                <div key={i} className="relative overflow-hidden aspect-[4/5] rounded-[2rem] transition-all duration-500 hover:shadow-2xl hover:-translate-y-2 group flex flex-col justify-end p-8 text-center cursor-pointer shadow-md border border-slate-100">
+                  {isImagePath ? (
+                    <>
+                      <img src={`/storage/${fasil.icon}`} alt={fasil.nama} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 z-0" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/45 to-transparent z-10"></div>
+                    </>
+                  ) : (
+                    <>
+                      <div className="absolute inset-0 bg-[#064e3b] z-0 opacity-90"></div>
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent z-10"></div>
+                    </>
+                  )}
+                  <div className="relative z-20 flex flex-col items-center">
+                    {!isImagePath && (
+                      <div className="w-16 h-16 rounded-2xl bg-white/10 backdrop-blur-md flex items-center justify-center mb-6 border border-white/20 text-3xl group-hover:scale-110 transition-transform">
+                        {fasil.icon || "🏢"}
+                      </div>
+                    )}
+                    <h4 className="text-xl font-black uppercase tracking-tight text-white mb-2 leading-snug drop-shadow-md">
+                      {fasil.nama}
+                    </h4>
+                    <p className="text-xs text-emerald-50/90 drop-shadow-sm opacity-90 leading-relaxed font-medium">
+                      {fasil.desc}
+                    </p>
+                  </div>
                 </div>
-                <h4 className="text-xl font-bold text-slate-800 mb-2">{fasil.nama}</h4>
-                <p className="text-slate-500 text-sm">{fasil.desc}</p>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </section>
@@ -747,7 +826,7 @@ export default function LandingPage({ news, testimonials, programs, extracurricu
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-            {activeGalleryItems.map((item, idx) => {
+            {activeGalleryItems.slice(0, 6).map((item, idx) => {
               const defaultImgs = [hero1, hero2, hero3];
               const galleryImg = resolveImage(item.image, defaultImgs[idx % 3]);
               return (
@@ -765,6 +844,19 @@ export default function LandingPage({ news, testimonials, programs, extracurricu
                 </div>
               );
             })}
+          </div>
+
+          {/* Button Lihat Galeri Lainnya */}
+          <div className="mt-12 flex justify-center">
+            <a 
+              href="/galeri"
+              className="bg-emerald-600 hover:bg-emerald-500 text-white px-8 py-3.5 rounded-2xl font-black text-xs uppercase tracking-[0.2em] shadow-xl transition-all hover:scale-105 active:scale-95 inline-flex items-center gap-2 border-b-4 border-emerald-800"
+            >
+              <span>Lihat Galeri Lainnya</span>
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+              </svg>
+            </a>
           </div>
         </div>
       </section>
@@ -832,69 +924,173 @@ export default function LandingPage({ news, testimonials, programs, extracurricu
         </div>
       </section>
 
-      {/* ── TESTIMONI & ALUMNI ── */}
-      <section className="py-24 bg-[#365555] relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-500px h-500px bg-emerald-500/10 blur-[100px] rounded-full -mr-64 -mt-64"></div>
-        <div className="absolute bottom-0 left-0 w-500px h-500px bg-emerald-500/5 blur-[100px] rounded-full -ml-64 -mb-64"></div>
+      {/* ── TESTIMONI & ALUMNI (GAYA EGS) ── */}
+      <section className="py-24 bg-slate-50 relative overflow-hidden border-t border-slate-100">
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-emerald-500/5 blur-[100px] rounded-full -mr-64 -mt-64"></div>
+        <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-emerald-500/5 blur-[100px] rounded-full -ml-64 -mb-64"></div>
 
         <div className="max-w-7xl mx-auto px-6 relative z-10">
           <div className="flex flex-col items-center text-center mb-16">
-            <span className="text-emerald-400 font-black tracking-[0.3em] uppercase text-[10px] mb-4">Bukti Nyata</span>
-            <h2 className="text-3xl md:text-5xl font-black !text-white uppercase tracking-tight">Apa Kata Mereka?</h2>
-            <div className="w-20 h-1.5 bg-emerald-500 mt-6 rounded-full"></div>
-            <p className="text-white/90 mt-6 max-w-2xl mx-auto font-medium leading-relaxed">
+            <span className="text-emerald-700 font-black tracking-[0.3em] uppercase text-[10px] mb-4">Bukti Nyata</span>
+            <h2 className="text-3xl md:text-5xl font-black text-slate-800 uppercase tracking-tight font-sans">Apa Kata Mereka?</h2>
+            <div className="w-20 h-1.5 bg-emerald-700 mt-6 rounded-full"></div>
+            <p className="text-slate-600 mt-6 max-w-2xl mx-auto font-medium leading-relaxed">
               Dari orang tua yang mempercayakan amanahnya, hingga alumni yang kini berkiprah di tengah umat.
             </p>
           </div>
 
-          <div className="grid lg:grid-cols-2 gap-12">
-            {/* Orang Tua */}
-            <div className="space-y-6">
-              <h3 className="text-emerald-400 font-black flex items-center gap-3 mb-8">
-                <span className="bg-emerald-400/20 p-2 rounded-lg text-lg">👨‍👩‍👧‍👦</span> KESAN ORANG TUA
-              </h3>
-              {(testimonials && testimonials.filter(t => t.type === 'Orang Tua').length > 0 ? testimonials.filter(t => t.type === 'Orang Tua').map(t => ({
-                nama: t.name, status: t.status, kata: t.quote
-              })) : [
-                { nama: "H. Ahmad Fauzi", status: "Wali Santri MA", kata: "Perubahan adab anak saya sangat terasa. Sekarang jauh lebih mandiri dan ibadahnya lebih terjaga. Terima kasih PPI 104." },
-                { nama: "Ibu Siti Rohmah", status: "Wali Santri MTs", kata: "Sangat bersyukur menyekolahkan anak di sini. Lingkungannya sangat kekeluargaan dan gurunya sangat peduli pada tiap santri." }
-              ]).map((t, i) => (
-                <div key={i} className="bg-white/5 backdrop-blur-sm p-8 rounded-2rem border border-white/10 hover:border-emerald-500/50 transition-all">
-                  <p className="text-white italic text-sm leading-relaxed mb-6">"{t.kata}"</p>
-                  <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 bg-emerald-700 rounded-full flex items-center justify-center font-bold text-white shadow-lg">{t.nama[0]}</div>
-                    <div>
-                      <h4 className="text-white font-bold text-sm">{t.nama}</h4>
-                      <p className="text-emerald-400 text-[10px] font-black uppercase tracking-wider">{t.status}</p>
-                    </div>
+          {/* ACTIVE TESTIMONIAL DISPLAY (2-PANEL GRID) */}
+          {activeTestimonial && (
+            <div className="grid lg:grid-cols-12 gap-8 items-stretch mb-20">
+              {/* Left Column: Graphic Card (4 cols) */}
+              <div className="lg:col-span-4 flex justify-center items-center">
+                <div className="w-full max-w-[320px] min-h-[420px] bg-gradient-to-br from-emerald-800 to-teal-950 text-white rounded-3xl p-8 shadow-2xl relative overflow-hidden flex flex-col items-center justify-between text-center border-4 border-white transition-all duration-300">
+                  {/* Badge */}
+                  <div className="bg-white text-emerald-900 px-4.5 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest shadow-md">
+                    TESTIMONI {activeTestimonial.type === 'Orang Tua' ? 'WALI SANTRI' : 'ALUMNI'}
                   </div>
-                </div>
-              ))}
-            </div>
+                  <span className="text-[10px] text-emerald-300 font-bold tracking-[0.2em] uppercase mt-2">PPI 104 AL-ITTIHAAD</span>
 
-            {/* Alumni */}
-            <div className="space-y-6">
-              <h3 className="text-emerald-400 font-black flex items-center gap-3 mb-8">
-                <span className="bg-emerald-400/20 p-2 rounded-lg text-lg">🎓</span> JEJAK ALUMNI
-              </h3>
-              {(testimonials && testimonials.filter(t => t.type === 'Alumni').length > 0 ? testimonials.filter(t => t.type === 'Alumni').map(t => ({
-                nama: t.name, status: t.status, kata: t.quote
-              })) : [
-                { nama: "Ustadz Lukman Hakim", status: "Alumni 2018 - Mahasiswa Al-Azhar Mesir", kata: "Bekal bahasa Arab dan hafalan Qur'an dari PPI 104 menjadi kunci utama saya bisa melanjutkan studi ke Timur Tengah dengan lancar." },
-                { nama: "Dr. Wildan Fauzi", status: "Alumni 2012 - Praktisi Kesehatan", kata: "Pelajaran tentang kedisiplinan dan amanah di pesantren sangat membantu saya dalam menjalani profesi saya sekarang sebagai dokter." }
-              ]).map((a, i) => (
-                <div key={i} className="bg-emerald-900/40 backdrop-blur-sm p-8 rounded-2rem border border-emerald-500/20 hover:bg-emerald-900/60 transition-all shadow-xl">
-                  <p className="text-white italic text-sm leading-relaxed mb-6">"{a.kata}"</p>
-                  <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 bg-emerald-50 rounded-full flex items-center justify-center font-bold text-emerald-950 shadow-lg">{a.nama[0]}</div>
+                  {/* Profile Image Frame */}
+                  <div className="w-32 h-32 rounded-full border-4 border-white overflow-hidden shadow-2xl my-6 bg-white shrink-0">
+                    <img 
+                      src={resolveImage(activeTestimonial.avatar, `https://ui-avatars.com/api/?name=${encodeURIComponent(activeTestimonial.name)}&background=047857&color=fff&size=150&bold=true`)} 
+                      alt={activeTestimonial.name} 
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+
+                  {/* Info */}
+                  <div className="mt-2">
+                    <h3 className="text-white font-black text-base leading-tight uppercase tracking-tight">{activeTestimonial.name}</h3>
+                    <div className="w-8 h-1 bg-emerald-400 mx-auto my-3 rounded-full"></div>
+                    <p className="text-emerald-200 text-[10px] font-bold uppercase tracking-wider leading-relaxed">{activeTestimonial.status}</p>
+                  </div>
+                  
+                  <div className="mt-4 bg-white/10 w-8 h-8 rounded-full flex items-center justify-center text-xs">
+                    ✨
+                  </div>
+                </div>
+              </div>
+
+              {/* Right Column: Quote Text (8 cols) */}
+              <div className="lg:col-span-8 flex">
+                <div className="w-full bg-white p-8 md:p-12 rounded-3xl shadow-xl border border-slate-100 relative flex flex-col justify-center min-h-[360px] md:min-h-full">
+                  <div className="absolute top-6 left-6 text-emerald-500/10 text-9xl font-serif select-none pointer-events-none">“</div>
+                  
+                  <p className="text-slate-700 text-lg md:text-xl font-medium italic leading-relaxed relative z-10 pl-6 border-l-4 border-emerald-700">
+                    "{activeTestimonial.quote}"
+                  </p>
+                  
+                  <div className="mt-8 border-t border-slate-100 pt-6 flex items-center gap-4 relative z-10">
+                    <div className="w-12 h-12 rounded-full border-2 border-emerald-500 overflow-hidden bg-white shrink-0">
+                      <img 
+                        src={resolveImage(activeTestimonial.avatar, `https://ui-avatars.com/api/?name=${encodeURIComponent(activeTestimonial.name)}&background=047857&color=fff&size=100&bold=true`)} 
+                        alt={activeTestimonial.name}
+                        className="w-full h-full object-cover" 
+                      />
+                    </div>
                     <div>
-                      <h4 className="text-white font-bold text-sm">{a.nama}</h4>
-                      <p className="text-emerald-300 text-[10px] font-black uppercase tracking-tighter">{a.status}</p>
+                      <h4 className="text-slate-900 font-bold text-base leading-snug">{activeTestimonial.name}</h4>
+                      <p className="text-emerald-700 text-[10px] font-black uppercase tracking-wider mt-0.5">{activeTestimonial.status}</p>
                     </div>
                   </div>
                 </div>
-              ))}
+              </div>
             </div>
+          )}
+
+          {/* SLIDER/CAROUSEL HEADER & NAVIGATION */}
+          <div className="flex justify-between items-center mb-8 border-b border-slate-200 pb-4">
+            <h3 className="text-base md:text-lg font-black text-slate-800 uppercase tracking-wider">
+              Jejak Perjalanan Alumni & Wali Santri
+            </h3>
+            <div className="flex gap-2">
+              <button 
+                onClick={() => {
+                  if (sliderRef.current) {
+                    sliderRef.current.scrollBy({ left: -300, behavior: 'smooth' });
+                  }
+                }}
+                className="bg-white hover:bg-emerald-50 text-slate-700 hover:text-emerald-800 p-2.5 rounded-full border border-slate-200 hover:border-emerald-300 transition-all shadow-md focus:outline-none cursor-pointer"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+                </svg>
+              </button>
+              <button 
+                onClick={() => {
+                  if (sliderRef.current) {
+                    sliderRef.current.scrollBy({ left: 300, behavior: 'smooth' });
+                  }
+                }}
+                className="bg-white hover:bg-emerald-50 text-slate-700 hover:text-emerald-800 p-2.5 rounded-full border border-slate-200 hover:border-emerald-300 transition-all shadow-md focus:outline-none cursor-pointer"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          {/* SLIDER CARDS CONTAINER */}
+          <div 
+            ref={sliderRef}
+            className="flex gap-6 overflow-x-auto pb-8 snap-x snap-mandatory scrollbar-none"
+            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+          >
+            {listTestimonials.map((t, idx) => {
+              const isActive = activeTestimonial && activeTestimonial.id === t.id;
+              return (
+                <div 
+                  key={t.id || idx}
+                  onClick={() => setActiveTestimonial(t)}
+                  className={`w-72 shrink-0 snap-center rounded-3xl p-6 bg-gradient-to-br from-emerald-700 to-teal-950 text-white shadow-lg border-2 transition-all duration-300 cursor-pointer flex flex-col justify-between items-center text-center relative overflow-hidden ${
+                    isActive 
+                      ? 'scale-105 border-white ring-4 ring-emerald-500/30' 
+                      : 'border-white/10 opacity-70 hover:opacity-100 hover:scale-[1.02]'
+                  }`}
+                >
+                  <div className="bg-white text-emerald-950 px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-wider mb-2">
+                    {t.type === 'Orang Tua' ? 'WALI SANTRI' : 'ALUMNI'}
+                  </div>
+                  
+                  {/* Photo inside circle */}
+                  <div className="w-20 h-20 rounded-full border-2 border-white overflow-hidden my-4 bg-white shadow-md shrink-0">
+                    <img 
+                      src={resolveImage(t.avatar, `https://ui-avatars.com/api/?name=${encodeURIComponent(t.name)}&background=047857&color=fff&size=100&bold=true`)} 
+                      alt={t.name}
+                      className="w-full h-full object-cover" 
+                    />
+                  </div>
+                  
+                  <div>
+                    <h4 className="font-bold text-sm text-white truncate w-56">{t.name}</h4>
+                    <p className="text-emerald-300 text-[9px] uppercase tracking-wider truncate w-56 mt-1">{t.status}</p>
+                  </div>
+
+                  {/* Arrow Indicator on active */}
+                  {isActive && (
+                    <div className="absolute bottom-2 right-2 bg-white/20 w-6 h-6 rounded-full flex items-center justify-center text-[10px]">
+                      ✓
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Button Lihat Alumni */}
+          <div className="mt-12 flex justify-center">
+            <a 
+              href="/program/alumni"
+              className="bg-emerald-600 hover:bg-emerald-500 text-white px-8 py-3.5 rounded-2xl font-black text-xs uppercase tracking-[0.2em] shadow-xl transition-all hover:scale-105 active:scale-95 inline-flex items-center gap-2 border-b-4 border-emerald-800"
+            >
+              <span>Lihat Alumni Selengkapnya</span>
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+              </svg>
+            </a>
           </div>
         </div>
       </section>
@@ -1001,12 +1197,30 @@ export default function LandingPage({ news, testimonials, programs, extracurricu
           <div className="grid md:grid-cols-3 gap-16 text-left">
             {/* Branding */}
             <div>
-              <div className="flex items-center gap-2 mb-6">
-                <span className="bg-emerald-600 text-white font-bold p-2 rounded-lg text-[10px]">104</span>
-                <h3 className="text-white text-lg font-black uppercase tracking-tighter">Al-Ittihad Cikajang</h3>
+              <div className="flex items-center gap-3 mb-6">
+                {footerLogo ? (
+                  <img 
+                    src={resolveImage(footerLogo, null)} 
+                    alt="Logo" 
+                    style={{ height: `${footerLogoHeight}px` }} 
+                    className="w-auto object-contain" 
+                  />
+                ) : (
+                  <>
+                    <span className="bg-emerald-600 text-white font-bold p-2 rounded-lg text-[10px]">104</span>
+                    <div className="flex flex-col text-left">
+                      <h3 className="text-white text-base font-black uppercase tracking-tighter leading-none">
+                        {settings?.header_title || 'Pesantren Persatuan Islam 104'}
+                      </h3>
+                      <span className="text-[11px] text-slate-400 uppercase tracking-wider mt-1 font-bold">
+                        {settings?.header_subtitle || 'Al-Ittihad Cikajang'}
+                      </span>
+                    </div>
+                  </>
+                )}
               </div>
               <p className="text-sm leading-relaxed font-medium">
-                Membangun generasi Tafaqquh Fiddin yang unggul, beradab, dan berwawasan luas sesuai Al-Qur'an dan Sunnah.
+                {settings?.footer_desc || "Membangun generasi Tafaqquh Fiddin yang unggul, beradab, dan berwawasan luas sesuai Al-Qur'an dan Sunnah."}
               </p>
             </div>
             

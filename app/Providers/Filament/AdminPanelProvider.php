@@ -46,13 +46,13 @@ class AdminPanelProvider extends PanelProvider
             ->navigationGroups([
                 NavigationGroup::make()
                     ->label('Pengaturan Website')
-                    ->collapsed(false),
+                    ->collapsed(true),
                 NavigationGroup::make()
                     ->label('Landing Page')
-                    ->collapsed(false),
+                    ->collapsed(true),
                 NavigationGroup::make()
                     ->label('Website')
-                    ->collapsed(false),
+                    ->collapsed(true),
                 NavigationGroup::make()
                     ->label('Profil Pesantren')
                     ->collapsed(true),

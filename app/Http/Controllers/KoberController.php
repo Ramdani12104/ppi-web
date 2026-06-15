@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\KoberSetting;
+use App\Models\Teacher;
 use Illuminate\Http\Request;
 
 class KoberController extends Controller
@@ -14,6 +15,8 @@ class KoberController extends Controller
             ->latest()
             ->first();
 
-        return view('frontend.program.kober', compact('kober'));
+        $teachers = Teacher::where('stage', 'kober')->orderBy('sort_order', 'asc')->get();
+
+        return view('frontend.program.kober', compact('kober', 'teachers'));
     }
 }

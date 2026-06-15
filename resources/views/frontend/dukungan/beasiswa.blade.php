@@ -98,20 +98,20 @@
         </div>
     </section>
 
-    <!-- 4. PERJALANAN DAN KISAH SANTRI (GALERI) -->
-    @if(isset($setting->galleries) && count($setting->galleries) > 0)
+    <!-- 4. PERJALANAN DAN KISAH SANTRI (GALERI / PENERIMA MANFAAT) -->
     <section class="max-w-7xl mx-auto px-6 mb-24">
         <div class="bg-amber-50/50 rounded-[3rem] p-8 md:p-16 border border-amber-100/50">
             <div class="text-center mb-12">
-                <h2 class="text-3xl font-black text-slate-800 mb-4">Potret Harapan Mereka</h2>
-                <p class="text-slate-500 max-w-2xl mx-auto">Sekilas senyum dan semangat mereka menuntut ilmu di tengah berbagai keterbatasan.</p>
+                <span class="text-amber-600 font-black text-xs uppercase tracking-[0.2em] mb-4">Penerima Manfaat</span>
+                <h2 class="text-3xl font-black text-slate-800 mb-4">Santri Penerima Manfaat</h2>
+                <p class="text-slate-500 max-w-2xl mx-auto">Sekilas potret senyum dan cita-cita para santri penerima beasiswa pendidikan Al-Ittihad.</p>
             </div>
             
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                @foreach($setting->galleries as $gallery)
+                @forelse($setting->galleries ?? [] as $gallery)
                 <div class="bg-white rounded-3xl p-4 shadow-sm border border-slate-100 group hover:shadow-lg transition-all">
                     <div class="rounded-2xl overflow-hidden h-56 mb-5">
-                        <img src="{{ asset('storage/' . $gallery->image) }}" class="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700">
+                        <img src="{{ asset('storage/' . $gallery->image) }}" class="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700" alt="{{ $gallery->title }}">
                     </div>
                     <div class="px-2 pb-2">
                         @if($gallery->title)
@@ -122,11 +122,41 @@
                         @endif
                     </div>
                 </div>
+                @empty
+                @php
+                    $defaultRecipients = [
+                        [
+                            'name' => 'Wildan Ghozali',
+                            'story' => 'Santri Tahfidz asal Garut. Berkat beasiswa ini, Wildan kini telah menyelesaikan hafalan 15 Juz dan aktif dalam organisasi santri.',
+                            'image' => 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=400'
+                        ],
+                        [
+                            'name' => 'Siti Aminah',
+                            'story' => 'Santri Dhuafa Jenjang MA. Berhasil mempertahankan predikat juara umum dan bercita-cita melanjutkan studi ke bidang kedokteran syariah.',
+                            'image' => 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=400'
+                        ],
+                        [
+                            'name' => 'Muhammad Ridwan',
+                            'story' => 'Santri Yatim Jenjang MTs. Memiliki ketertarikan tinggi pada astronomi Islam (ilmu falak) dan aktif di ekstrakurikuler kepramukaan.',
+                            'image' => 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=400'
+                        ]
+                    ];
+                @endphp
+                @foreach($defaultRecipients as $recipient)
+                <div class="bg-white rounded-3xl p-4 shadow-sm border border-slate-100 group hover:shadow-lg transition-all">
+                    <div class="rounded-2xl overflow-hidden h-56 mb-5">
+                        <img src="{{ $recipient['image'] }}" class="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700" alt="{{ $recipient['name'] }}">
+                    </div>
+                    <div class="px-2 pb-2">
+                        <h4 class="font-bold text-slate-800 mb-2">{{ $recipient['name'] }}</h4>
+                        <p class="text-sm text-slate-500 italic leading-relaxed">"{{ $recipient['story'] }}"</p>
+                    </div>
+                </div>
                 @endforeach
+                @endforelse
             </div>
         </div>
     </section>
-    @endif
 
     <!-- 5. PROGRAM YANG SEDANG BERJALAN (PROGRESS) -->
     <section class="max-w-5xl mx-auto px-6 mb-24">

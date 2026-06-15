@@ -27,24 +27,163 @@ class MTsSettingResource extends Resource
     {
         return $form
             ->schema([
-                // Hero Section
-                Forms\Components\Section::make('Hero Section')
+                // Logo & Identitas
+                Forms\Components\Section::make('Logo & Identitas')
+                    ->description('Kelola logo sekolah')
                     ->schema([
                         MediaHelper::imageUpload('logo', 'Logo MTs', 'website', 'logo'),
-                        MediaHelper::imageUpload('hero_banner', 'Gambar Background Hero', 'jenjang', 'banner'),
-                        Forms\Components\TextInput::make('hero_heading')
-                            ->label('Judul Utama Hero')
-                            ->required()
-                            ->default('Madrasah Tsanawiyah'),
-                        Forms\Components\TextInput::make('hero_subheading')
-                            ->label('Sub-judul Hero')
-                            ->default('Pendidikan Menengah Berbasis Adab'),
+                    ])
+                    ->columns(1),
+
+                // Warna Tema Halaman
+                Forms\Components\Section::make('Warna Tema Halaman')
+                    ->description('Atur warna tema utama dan aksen untuk seluruh halaman ini')
+                    ->schema([
+                        Forms\Components\ColorPicker::make('primary_color')
+                            ->label('Warna Tema Utama')
+                            ->helperText('Contoh default: #D96B43 (Terracotta MTs)'),
+                        Forms\Components\ColorPicker::make('accent_color')
+                            ->label('Warna Aksen / Sekunder')
+                            ->helperText('Contoh default: #FFE8D6 (Cream MTs)'),
                     ])
                     ->columns(2),
+
+                // Foto Background Slide
+                Forms\Components\Section::make('Foto Background Slide')
+                    ->description('Upload foto-foto background slide satu per satu (Maksimal 3 foto)')
+                    ->schema([
+                        MediaHelper::imageUpload('hero_image_1', 'Foto Background 1', 'website', 'banner')
+                            ->required(),
+                        MediaHelper::imageUpload('hero_image_2', 'Foto Background 2 (Opsional)', 'website', 'banner'),
+                        MediaHelper::imageUpload('hero_image_3', 'Foto Background 3 (Opsional)', 'website', 'banner'),
+                    ])
+                    ->columns(3),
+
+                // Statistik Hero Section
+                Forms\Components\Section::make('Statistik Hero Section')
+                    ->description('Kelola 4 kartu statistik di bagian bawah slide hero')
+                    ->schema([
+                        Forms\Components\Repeater::make('hero_stats')
+                            ->label('Kartu Statistik')
+                            ->schema([
+                                Forms\Components\TextInput::make('value')
+                                    ->label('Angka/Nilai')
+                                    ->required()
+                                    ->placeholder('Contoh: 34+ atau A'),
+                                Forms\Components\TextInput::make('label')
+                                    ->label('Keterangan/Label')
+                                    ->required()
+                                    ->placeholder('Contoh: Tahun Pengalaman'),
+                            ])
+                            ->columns(2)
+                            ->itemLabel(fn (array $state): ?string => $state['label'] ?? null)
+                            ->reorderableWithButtons()
+                            ->collapsible()
+                            ->maxItems(4)
+                            ->default([
+                                ['value' => '34+', 'label' => 'Tahun Pengalaman'],
+                                ['value' => '1.000+', 'label' => 'Alumni MTs'],
+                                ['value' => '2', 'label' => 'Program Unggulan'],
+                                ['value' => 'A', 'label' => 'Akreditasi'],
+                            ]),
+                    ]),
+
+                // Pengaturan Teks & Layout Slide
+                Forms\Components\Section::make('Pengaturan Teks & Layout Slide')
+                    ->description('Kelola tulisan, ukuran judul, posisi teks, warna, dan kegelapan overlay background')
+                    ->schema([
+                        Forms\Components\TextInput::make('hero_small_text')
+                            ->label('Tulisan Kecil (Slogan Atas)')
+                            ->required(),
+                        Forms\Components\Select::make('hero_small_font_size')
+                            ->label('Ukuran Slogan Atas')
+                            ->options([
+                                'text-[10px] md:text-xs' => 'Kecil (10px/xs) - Default',
+                                'text-xs md:text-sm' => 'Sedang (xs/sm)',
+                                'text-sm md:text-base' => 'Besar (sm/base)',
+                            ])
+                            ->required(),
+                        Forms\Components\ColorPicker::make('hero_small_text_color')
+                            ->label('Warna Slogan Atas'),
+                        
+                        Forms\Components\TextInput::make('hero_heading')
+                            ->label('Judul Besar')
+                            ->required()
+                            ->columnSpanFull(),
+                        Forms\Components\Select::make('hero_font_size')
+                            ->label('Ukuran Judul Besar')
+                            ->options([
+                                'text-3xl md:text-5xl' => 'Kecil (3xl/5xl)',
+                                'text-4xl md:text-6xl' => 'Sedang (4xl/6xl) - Default',
+                                'text-5xl md:text-7xl' => 'Besar (5xl/7xl)',
+                                'text-6xl md:text-8xl' => 'Sangat Besar (6xl/8xl)',
+                            ])
+                            ->required(),
+                        Forms\Components\ColorPicker::make('hero_heading_color')
+                            ->label('Warna Judul Besar'),
+                            
+                        Forms\Components\Textarea::make('hero_subheading')
+                            ->label('Sedikit Keterangan / Deskripsi')
+                            ->rows(3)
+                            ->required()
+                            ->columnSpanFull(),
+                        Forms\Components\Select::make('hero_subheading_font_size')
+                            ->label('Ukuran Deskripsi')
+                            ->options([
+                                'text-lg md:text-xl' => 'Kecil (lg/xl)',
+                                'text-xl md:text-2xl' => 'Sedang (xl/2xl) - Default',
+                                'text-2xl md:text-3xl' => 'Besar (2xl/3xl)',
+                            ])
+                            ->required(),
+                        Forms\Components\ColorPicker::make('hero_subheading_color')
+                            ->label('Warna Deskripsi'),
+
+                        Forms\Components\TextInput::make('hero_button_text')
+                            ->label('Teks Tombol CTA')
+                            ->required(),
+                        Forms\Components\TextInput::make('hero_button_link')
+                            ->label('Link Tombol CTA')
+                            ->required(),
+                        Forms\Components\Select::make('hero_overlay_opacity')
+                            ->label('Overlay Background')
+                            ->options([
+                                'bg-black/30' => 'Terang (30%)',
+                                'bg-black/45' => 'Sedang (45%)',
+                                'bg-black/60' => 'Gelap (60%) - Default',
+                                'bg-black/75' => 'Sangat Gelap (75%)',
+                                'bg-black/90' => 'Hampir Hitam (90%)',
+                            ])
+                            ->required(),
+                        
+                        Forms\Components\Select::make('hero_text_position')
+                            ->label('Posisi & Penyelarasan Teks')
+                            ->options([
+                                'items-center text-center' => 'Tengah (Center) - Default',
+                                'items-start text-left' => 'Kiri (Left)',
+                                'items-end text-right' => 'Kanan (Right)',
+                            ])
+                            ->required(),
+                        Forms\Components\Select::make('hero_stats_font_size')
+                            ->label('Ukuran Nilai Statistik')
+                            ->options([
+                                'text-2xl md:text-3xl' => 'Kecil (2xl/3xl)',
+                                'text-3xl md:text-4xl' => 'Sedang (3xl/4xl)',
+                                'text-4xl md:text-5xl' => 'Besar (4xl/5xl) - Default',
+                                'text-5xl md:text-6xl' => 'Sangat Besar (5xl/6xl)',
+                            ])
+                            ->required(),
+                        Forms\Components\ColorPicker::make('hero_stats_color')
+                            ->label('Warna Angka/Keterangan Statistik'),
+                    ])
+                    ->columns(3),
                 
                 // Video Profil
-                Forms\Components\Section::make('Video Profil')
+                Forms\Components\Section::make('Video Profil Utama')
                     ->schema(MediaHelper::youtubeFields('youtube_link')),
+                
+                // Video Kegiatan
+                Forms\Components\Section::make('Video Kegiatan / Galeri')
+                    ->schema(MediaHelper::youtubeFields('youtube_kegiatan_link')),
                 
                 // Program Unggulan
                 Forms\Components\Section::make('Program Unggulan')
@@ -80,6 +219,41 @@ class MTsSettingResource extends Resource
                                 'orderedList',
                                 'link',
                             ]),
+                    ]),
+
+                // Ekstrakurikuler MTs
+                Forms\Components\Section::make('Ekstrakurikuler MTs')
+                    ->description('Kelola ekstrakurikuler khusus MTs (terpisah dari eskul pesantren)')
+                    ->schema([
+                        Forms\Components\Repeater::make('ekstrakurikuler')
+                            ->label('Daftar Ekstrakurikuler')
+                            ->schema([
+                                Forms\Components\TextInput::make('name')
+                                    ->label('Nama Ekstrakurikuler')
+                                    ->required()
+                                    ->maxLength(255),
+                                MediaHelper::imageUpload('icon', 'Foto Ekstrakurikuler', 'extracurricular', 'icon'),
+                                Forms\Components\Select::make('color_classes')
+                                    ->label('Tema Warna Kartu')
+                                    ->options([
+                                        'bg-orange-50 text-orange-700 border-orange-100' => 'Terracotta / Orange',
+                                        'bg-blue-50 text-blue-700 border-blue-100' => 'Biru',
+                                        'bg-purple-50 text-purple-700 border-purple-100' => 'Ungu',
+                                        'bg-amber-50 text-amber-700 border-amber-100' => 'Kuning / Amber',
+                                        'bg-emerald-50 text-emerald-700 border-emerald-100' => 'Hijau',
+                                    ])
+                                    ->default('bg-orange-50 text-orange-700 border-orange-100')
+                                    ->required(),
+                                Forms\Components\TextInput::make('stages')
+                                    ->label('Keterangan Tingkat (misal: MTs, MTs-MA)')
+                                    ->default('MTs')
+                                    ->required(),
+                            ])
+                            ->columns(2)
+                            ->itemLabel(fn (array $state): ?string => $state['name'] ?? null)
+                            ->reorderableWithButtons()
+                            ->collapsible()
+                            ->defaultItems(4),
                     ]),
                 
                 // CTA Pendaftaran

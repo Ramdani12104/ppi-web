@@ -32,12 +32,20 @@ class TestimonialResource extends Resource
                     ->required(),
                 Forms\Components\TextInput::make('status')
                     ->required(),
+                Forms\Components\Select::make('type')
+                    ->options([
+                        'Orang Tua' => 'Orang Tua',
+                        'Alumni' => 'Alumni',
+                    ])
+                    ->required(),
+                Forms\Components\FileUpload::make('avatar')
+                    ->image()
+                    ->directory('testimonials')
+                    ->maxSize(2048)
+                    ->columnSpanFull(),
                 Forms\Components\Textarea::make('quote')
                     ->required()
                     ->columnSpanFull(),
-                Forms\Components\TextInput::make('type')
-                    ->required(),
-                Forms\Components\TextInput::make('avatar'),
             ]);
     }
 
@@ -51,8 +59,8 @@ class TestimonialResource extends Resource
                     ->searchable(),
                 Tables\Columns\TextColumn::make('type')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('avatar')
-                    ->searchable(),
+                Tables\Columns\ImageColumn::make('avatar')
+                    ->circular(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
@@ -62,6 +70,7 @@ class TestimonialResource extends Resource
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
+            ->defaultSort('created_at', 'desc')
             ->filters([
                 //
             ])

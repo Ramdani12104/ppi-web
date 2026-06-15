@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\FacilityResource\Pages;
 use App\Models\Facility;
+use App\Helpers\MediaHelper;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -31,10 +32,8 @@ class FacilityResource extends Resource
                     ->label('Nama Fasilitas')
                     ->required()
                     ->maxLength(255),
-                Forms\Components\TextInput::make('icon')
-                    ->label('Emoji / Icon')
-                    ->placeholder('Contoh: 🕌')
-                    ->maxLength(255),
+                MediaHelper::imageUpload('icon', 'Foto Fasilitas', 'facility', 'icon')
+                    ->columnSpanFull(),
                 Forms\Components\Textarea::make('description')
                     ->label('Deskripsi')
                     ->columnSpanFull(),
@@ -45,11 +44,11 @@ class FacilityResource extends Resource
     {
         return $table
             ->columns([
+                Tables\Columns\ImageColumn::make('icon')
+                    ->label('Foto')
+                    ->circular(),
                 Tables\Columns\TextColumn::make('name')
                     ->label('Nama Fasilitas')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('icon')
-                    ->label('Icon')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()

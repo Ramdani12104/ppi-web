@@ -43,24 +43,24 @@ class ManageProgramUnggulan extends BaseLandingPage
                     'link' => '#'
                 ],
                 [
-                    'icon' => '🏥',
-                    'title' => 'Poskestren',
-                    'desc' => 'Pos Kesehatan Pesantren yang melayani kesehatan santri sekaligus edukasi pola hidup bersih dan sehat.',
-                    'color_gradient' => 'from-red-500 to-red-700',
+                    'icon' => '🕋',
+                    'title' => 'Tabungan Umroh',
+                    'desc' => 'Layanan tabungan syariah pesantren untuk membantu santri, wali santri, dan asatidz merencanakan ibadah Umroh.',
+                    'color_gradient' => 'from-yellow-500 to-amber-700',
                     'link' => '#'
                 ],
                 [
-                    'icon' => '✍️',
-                    'title' => 'Jurnalistik',
-                    'desc' => 'Pelatihan literasi, kepenulisan, dan media untuk mengasah kemampuan dakwah santri di era digital.',
-                    'color_gradient' => 'from-orange-500 to-orange-700',
+                    'icon' => '🐏',
+                    'title' => 'Tabungan Kurban',
+                    'desc' => 'Program perencanaan kurban tahunan bagi santri dan keluarga untuk mempermudah ibadah kurban terbaik.',
+                    'color_gradient' => 'from-teal-500 to-emerald-700',
                     'link' => '#'
                 ],
                 [
-                    'icon' => '✨',
-                    'title' => 'Program Lainnya',
-                    'desc' => 'Berbagai kegiatan ekstrakurikuler dan pengembangan bakat yang akan terus bertambah sesuai kebutuhan santri.',
-                    'color_gradient' => 'from-purple-500 to-purple-700',
+                    'icon' => '🛍️',
+                    'title' => 'Kopontren',
+                    'desc' => 'Koperasi Pondok Pesantren sebagai wadah ekonomi mandiri, penyedia kebutuhan santri, serta praktek wirausaha.',
+                    'color_gradient' => 'from-indigo-500 to-violet-700',
                     'link' => '#'
                 ]
             ],

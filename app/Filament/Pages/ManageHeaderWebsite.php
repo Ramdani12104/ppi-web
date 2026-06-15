@@ -27,6 +27,7 @@ class ManageHeaderWebsite extends BaseLandingPage
             'logo_website' => '',
             'logo_mobile' => '',
             'favicon' => '',
+            'logo_height' => '80',
             'header_cta_text' => 'PSB 26/27',
             'header_cta_link' => '/kontak',
             'header_menu' => [
@@ -67,6 +68,13 @@ class ManageHeaderWebsite extends BaseLandingPage
                         MediaHelper::imageUpload('logo_website', 'Logo Desktop', 'website', 'logo'),
                         MediaHelper::imageUpload('logo_mobile', 'Logo Mobile (Opsional)', 'website', 'logo'),
                         MediaHelper::imageUpload('favicon', 'Favicon Website', 'website', 'logo'),
+                        TextInput::make('logo_height')
+                            ->label('Tinggi Logo (Pixel)')
+                            ->numeric()
+                            ->default(80)
+                            ->suffix('px')
+                            ->helperText('Mengatur tinggi logo. Tinggi logo mobile otomatis menyesuaikan (80% dari ukuran desktop).')
+                            ->required(),
                     ])->columns(3),
 
                 Section::make('Call to Action (CTA) Header')

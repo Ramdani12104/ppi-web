@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\SditSetting;
+use App\Models\Teacher;
 use Illuminate\Http\Request;
 
 class SditController extends Controller
@@ -14,6 +15,8 @@ class SditController extends Controller
             ->latest()
             ->first();
 
-        return view('frontend.program.sdit', compact('sdit'));
+        $teachers = Teacher::where('stage', 'sdit')->orderBy('sort_order', 'asc')->get();
+
+        return view('frontend.program.sdit', compact('sdit', 'teachers'));
     }
 }

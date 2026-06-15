@@ -21,6 +21,7 @@ class ManageFooterWebsite extends BaseLandingPage
     {
         return [
             'footer_logo' => '',
+            'footer_logo_height' => '60',
             'footer_desc' => 'Membangun generasi Tafaqquh Fiddin yang unggul, beradab, dan berwawasan luas sesuai Al-Qur\'an dan Sunnah.',
             'footer_address' => 'Pesantren Persatuan Islam 104 Cikajang, Kp. Rancapandan, Ds. Mekarjaya, Kec. Cikajang, Kabupaten Garut, Jawa Barat 44171.',
             'footer_phone' => '+6283822099034',
@@ -49,10 +50,18 @@ class ManageFooterWebsite extends BaseLandingPage
                     ->description('Kelola identitas utama footer')
                     ->schema([
                         MediaHelper::imageUpload('footer_logo', 'Logo Footer (Format SVG/PNG/JPG/WEBP)', 'website', 'logo'),
+                        TextInput::make('footer_logo_height')
+                            ->label('Tinggi Logo Footer (Pixel)')
+                            ->numeric()
+                            ->default(60)
+                            ->suffix('px')
+                            ->helperText('Mengatur tinggi logo footer.')
+                            ->required(),
                         Textarea::make('footer_desc')
                             ->label('Deskripsi Pendek Footer')
                             ->rows(3)
-                            ->required(),
+                            ->required()
+                            ->columnSpanFull(),
                     ])->columns(2),
 
                 Section::make('Informasi Kontak & Peta')

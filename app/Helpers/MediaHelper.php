@@ -17,17 +17,6 @@ class MediaHelper
     {
         $label = $label ?? ucwords(str_replace('_', ' ', $name));
         
-        $width = 1200;
-        $height = 800;
-        
-        if ($preset === 'banner') {
-            $width = 1920;
-            $height = 1080;
-        } elseif ($preset === 'avatar' || $preset === 'logo') {
-            $width = 400;
-            $height = 400;
-        }
-        
         $upload = FileUpload::make($name)
             ->label($label)
             ->image()
@@ -35,11 +24,17 @@ class MediaHelper
             ->directory($directory)
             ->visibility('public')
             ->preserveFilenames(false)
-            ->maxSize(5120); // 5MB limit
+            ->maxSize(5120) // 5MB limit
+            ->imagePreviewHeight('200')
+            ->loadingIndicatorPosition('left')
+            ->panelAspectRatio('2:1')
+            ->panelLayout('integrated')
+            ->removeUploadedFileButtonPosition('right')
+            ->uploadButtonPosition('left')
+            ->uploadProgressIndicatorPosition('left');
 
         if ($preset === 'logo' || $preset === 'avatar') {
-            // For logos and avatars, support SVG, and DO NOT apply resizing/editor
-            // because resizing/editing will crop logos or fail for SVGs.
+            // Logo & avatar: support SVG, no resize needed
             $upload->acceptedFileTypes([
                 'image/jpeg',
                 'image/png',
@@ -48,25 +43,18 @@ class MediaHelper
             ])
             ->helperText('Format: SVG, PNG, JPG, JPEG, WEBP. Max: 5MB.');
         } else {
-            // For general content/banners, do not accept SVG to prevent vector scaling issues,
-            // and only resize/edit if GD or Imagick is loaded.
+            // Content & banners: raster only
             $upload->acceptedFileTypes([
                 'image/jpeg',
                 'image/png',
                 'image/webp'
             ])
-            ->helperText('Format: PNG, JPG, JPEG, WEBP. Max: 5MB.');
-
-            if (extension_loaded('gd') || extension_loaded('imagick')) {
-                $upload->imageEditor()
-                    ->imageResizeMode('cover')
-                    ->imageResizeTargetWidth($width)
-                    ->imageResizeTargetHeight($height);
-            }
+            ->helperText('Format: JPG, PNG, WEBP. Max: 5MB.');
         }
         
         return $upload;
     }
+
 
     /**
      * Standardized YouTube field with live preview.
